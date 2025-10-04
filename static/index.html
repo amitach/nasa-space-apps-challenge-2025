@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISS Image Search</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .search-button {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .search-button:hover {
+            background: #5a6fd8;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-label {
+            font-weight: bold;
+            color: #333;
+        }
+        .filter-select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .result-card:hover {
+            transform: translateY(-5px);
+        }
+        .result-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .result-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .result-description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        .result-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #888;
+        }
+        .similarity-score {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .example-queries {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        .example-queries h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .example-query {
+            display: inline-block;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .example-query:hover {
+            background: #bbdefb;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 ISS Image Search</h1>
+        <p>Search through NASA's International Space Station images using natural language</p>
+    </div>
+
+    <div class="search-container">
+        <form class="search-form" onsubmit="searchImages(event)">
+            <input type="text" class="search-input" id="searchQuery" placeholder="Enter your search query (e.g., 'astronauts in cupola viewing earth')" required>
+            <button type="submit" class="search-button">Search</button>
+        </form>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label class="filter-label" for="categoryFilter">Category:</label>
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">All Categories</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label" for="sourceFilter">Source:</label>
+                <select class="filter-select" id="sourceFilter">
+                    <option value="">All Sources</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label" for="topKFilter">Results:</label>
+                <select class="filter-select" id="topKFilter">
+                    <option value="5">5 results</option>
+                    <option value="10">10 results</option>
+                    <option value="15">15 results</option>
+                    <option value="20">20 results</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="example-queries">
+            <h4>Try these example queries:</h4>
+            <span class="example-query" onclick="setQuery('astronauts in cupola viewing earth')">astronauts in cupola viewing earth</span>
+            <span class="example-query" onclick="setQuery('space shuttle mission')">space shuttle mission</span>
+            <span class="example-query" onclick="setQuery('EVA training underwater')">EVA training underwater</span>
+            <span class="example-query" onclick="setQuery('aurora from space')">aurora from space</span>
+            <span class="example-query" onclick="setQuery('robotic arm operations')">robotic arm operations</span>
+            <span class="example-query" onclick="setQuery('earth observation')">earth observation</span>
+            <span class="example-query" onclick="setQuery('crew activities')">crew activities</span>
+            <span class="example-query" onclick="setQuery('sunrise from space')">sunrise from space</span>
+        </div>
+    </div>
+
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        
+        // Load categories on page load
+        window.onload = function() {
+            loadCategories();
+        };
+
+        function setQuery(query) {
+            document.getElementById('searchQuery').value = query;
+            searchImages();
+        }
+
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/categories`);
+                const data = await response.json();
+                
+                const categorySelect = document.getElementById('categoryFilter');
+                const sourceSelect = document.getElementById('sourceFilter');
+                
+                data.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+                
+                data.sources.forEach(source => {
+                    const option = document.createElement('option');
+                    option.value = source;
+                    option.textContent = source;
+                    sourceSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function searchImages(event) {
+            if (event) event.preventDefault();
+            
+            const query = document.getElementById('searchQuery').value.trim();
+            const category = document.getElementById('categoryFilter').value;
+            const source = document.getElementById('sourceFilter').value;
+            const topK = document.getElementById('topKFilter').value;
+            
+            if (!query) return;
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="loading">🔍 Searching for images...</div>';
+            
+            try {
+                let searchUrl = `${API_BASE}/search?q=${encodeURIComponent(query)}&top_k=${topK}`;
+                
+                // If filters are applied, get all images and filter client-side
+                let results;
+                if (category || source) {
+                    const allResponse = await fetch(`${API_BASE}/images?limit=100`);
+                    const allData = await allResponse.json();
+                    
+                    // Filter by category and source
+                    let filteredImages = allData.images;
+                    if (category) {
+                        filteredImages = filteredImages.filter(img => img.category === category);
+                    }
+                    if (source) {
+                        filteredImages = filteredImages.filter(img => img.source === source);
+                    }
+                    
+                    // Simple text search on filtered results
+                    const queryLower = query.toLowerCase();
+                    const scoredResults = filteredImages.map(img => {
+                        const text = `${img.description} ${img.nasa_id} ${img.keywords?.join(' ')}`.toLowerCase();
+                        const score = text.includes(queryLower) ? 1 : 0;
+                        return { ...img, similarity_score: score };
+                    }).filter(img => img.similarity_score > 0).slice(0, parseInt(topK));
+                    
+                    results = {
+                        query: query,
+                        total_results: scoredResults.length,
+                        results: scoredResults
+                    };
+                } else {
+                    const response = await fetch(searchUrl);
+                    results = await response.json();
+                }
+                
+                displayResults(results);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                resultsDiv.innerHTML = `<div class="error">❌ Error searching images: ${error.message}</div>`;
+            }
+        }
+
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (results.error) {
+                resultsDiv.innerHTML = `<div class="error">❌ ${results.error}</div>`;
+                return;
+            }
+            
+            if (results.total_results === 0) {
+                resultsDiv.innerHTML = '<div class="no-results">🔍 No images found matching your query. Try different keywords.</div>';
+                return;
+            }
+            
+            let html = `<h2>Found ${results.total_results} images for "${results.query}"</h2><div class="results">`;
+            
+            results.results.forEach((image, index) => {
+                html += `
+                    <div class="result-card">
+                        <img src="${image.image_url}" alt="${image.nasa_id}" class="result-image" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+PC9zdmc+'">
+                        <div class="result-title">${image.nasa_id}</div>
+                        <div class="result-description">${image.description.substring(0, 150)}${image.description.length > 150 ? '...' : ''}</div>
+                        <div class="result-meta">
+                            <span>${image.category || 'N/A'} • ${image.source || 'N/A'}</span>
+                            <span class="similarity-score">${(image.similarity_score * 100).toFixed(1)}% match</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

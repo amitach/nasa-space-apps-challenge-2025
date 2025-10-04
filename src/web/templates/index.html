@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}ISS Image Search - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 mb-4">
+                    <i class="fas fa-search me-3"></i>
+                    ISS Image Search
+                </h1>
+                <p class="lead mb-4">
+                    Discover amazing images from the International Space Station using natural language search
+                </p>
+                
+                <!-- Search Form -->
+                <div class="card search-card">
+                    <div class="card-body p-4">
+                        <form id="searchForm" class="row g-3">
+                            <div class="col-md-8">
+                                <input type="text" 
+                                       class="form-control form-control-lg" 
+                                       id="searchQuery" 
+                                       placeholder="Search for images... (e.g., 'astronauts in cupola viewing earth')"
+                                       required>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select form-select-lg" id="topK">
+                                    <option value="3">3 results</option>
+                                    <option value="5" selected>5 results</option>
+                                    <option value="10">10 results</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-search me-2"></i>Search
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Loading Indicator -->
+                        <div class="loading text-center mt-3">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Searching...</span>
+                            </div>
+                            <p class="mt-2">Searching through ISS images...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-brain fa-lg"></i>
+                    </div>
+                    <h5>AI-Powered Search</h5>
+                    <p class="text-muted">Uses advanced natural language processing to understand your queries</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-rocket fa-lg"></i>
+                    </div>
+                    <h5>Real ISS Images</h5>
+                    <p class="text-muted">Access authentic images from NASA's International Space Station</p>
+                </div>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <div class="text-center">
+                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                        <i class="fas fa-bolt fa-lg"></i>
+                    </div>
+                    <h5>Lightning Fast</h5>
+                    <p class="text-muted">Get results in milliseconds using FAISS vector search</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Example Queries -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="text-center mb-4">Try These Example Queries</h3>
+        <div class="row">
+            <div class="col-md-6 col-lg-3 mb-3">
+                <button class="btn btn-outline-primary w-100 example-query" data-query="astronauts in cupola viewing earth">
+                    <i class="fas fa-eye me-2"></i>Cupola Earth Views
+                </button>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <button class="btn btn-outline-primary w-100 example-query" data-query="EVA training underwater">
+                    <i class="fas fa-swimming-pool me-2"></i>EVA Training
+                </button>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <button class="btn btn-outline-primary w-100 example-query" data-query="space station modules">
+                    <i class="fas fa-cube me-2"></i>Space Station Modules
+                </button>
+            </div>
+            <div class="col-md-6 col-lg-3 mb-3">
+                <button class="btn btn-outline-primary w-100 example-query" data-query="aurora from space">
+                    <i class="fas fa-magic me-2"></i>Aurora from Space
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Results -->
+<div id="searchResults" class="py-5" style="display: none;">
+    <div class="container">
+        <h3 id="resultsTitle" class="mb-4"></h3>
+        <div id="resultsContainer" class="row"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('searchForm');
+    const searchQuery = document.getElementById('searchQuery');
+    const topK = document.getElementById('topK');
+    const loading = document.querySelector('.loading');
+    const searchResults = document.getElementById('searchResults');
+    const resultsTitle = document.getElementById('resultsTitle');
+    const resultsContainer = document.getElementById('resultsContainer');
+    
+    // Example query buttons
+    document.querySelectorAll('.example-query').forEach(button => {
+        button.addEventListener('click', function() {
+            searchQuery.value = this.dataset.query;
+            searchForm.dispatchEvent(new Event('submit'));
+        });
+    });
+    
+    // Search form submission
+    searchForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const query = searchQuery.value.trim();
+        if (!query) return;
+        
+        // Show loading
+        loading.classList.add('show');
+        searchResults.style.display = 'none';
+        
+        try {
+            const response = await axios.get('/api/search', {
+                params: {
+                    q: query,
+                    top_k: topK.value
+                }
+            });
+            
+            displayResults(response.data);
+            
+        } catch (error) {
+            console.error('Search error:', error);
+            alert('Search failed. Please try again.');
+        } finally {
+            loading.classList.remove('show');
+        }
+    });
+    
+    function displayResults(data) {
+        resultsTitle.textContent = `Found ${data.total_results} results for "${data.query}"`;
+        resultsContainer.innerHTML = '';
+        
+        if (data.results && data.results.length > 0) {
+            data.results.forEach((image, index) => {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4 mb-4';
+                
+                col.innerHTML = `
+                    <div class="card image-card h-100 position-relative">
+                        <div class="similarity-badge">
+                            ${(image.similarity_score * 100).toFixed(1)}% match
+                        </div>
+                        <img src="${image.image_url}" class="card-img-top" alt="${image.nasa_id}" 
+                             onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Available'">
+                        <div class="card-body">
+                            <h6 class="card-title">${image.nasa_id}</h6>
+                            <p class="card-text small">${image.description.substring(0, 100)}...</p>
+                            <div class="d-flex flex-wrap gap-1">
+                                ${image.keywords ? image.keywords.map(keyword => 
+                                    `<span class="badge bg-secondary">${keyword}</span>`
+                                ).join('') : ''}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="${image.image_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-external-link-alt me-1"></i>View Full Image
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                resultsContainer.appendChild(col);
+            });
+        } else {
+            resultsContainer.innerHTML = '<div class="col-12"><p class="text-center text-muted">No results found.</p></div>';
+        }
+        
+        searchResults.style.display = 'block';
+        searchResults.scrollIntoView({ behavior: 'smooth' });
+    }
+});
+</script>
+{% endblock %}
