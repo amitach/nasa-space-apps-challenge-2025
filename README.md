@@ -233,9 +233,6 @@ This project is part of the NASA Space Apps Challenge 2025.
         - Neutral Buoyancy Laboratory (NBL) 
 - Scrape and store OR point to relevant data sources
 
-
-
-
 Check Tavus API
 - Check what APIs are available 
 - Wire Tavus to pull data from the relevant narrowed down sources 
@@ -247,3 +244,5 @@ Check Tavus API
 
 30-seconds video presentation
 - Record convo with Tavus
+
+5-mins pitch + 2-mins Q&A
