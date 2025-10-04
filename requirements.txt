@@ -1,0 +1,28 @@
+# ISS Image Search API Requirements
+
+# Core API Framework
+flask==2.3.3
+gunicorn==21.2.0
+
+# Machine Learning & Vector Search
+faiss-cpu==1.7.4
+sentence-transformers==2.7.0
+numpy==1.24.3
+torch==2.0.1
+
+# HTTP Requests
+requests==2.31.0
+
+# Configuration & Environment
+python-dotenv==1.0.0
+
+# Hugging Face Hub (for sentence transformers)
+huggingface-hub>=0.20.0
+
+# Development & Testing
+pytest==7.4.0
+pytest-flask==1.2.0
+
+# Optional: For production deployment
+# uwsgi==2.0.22
+# nginx (install via system package manager)
