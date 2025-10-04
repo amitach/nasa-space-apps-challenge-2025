@@ -154,6 +154,122 @@ curl http://localhost:5001/health
 - **🎨 Web Interface**: Beautiful web UI for testing and demonstration
 - **📊 Filtering & Categories**: Filter by category, source, and other metadata
 - **⚡ Fast & Local**: All processing happens locally, no external API calls
+- **🤖 Tavus Integration**: Real-time conversational AI with dynamic image display
+- **📡 Real-time Updates**: Server-Sent Events for instant slideshow updates
+
+## 🏗️ System Architecture
+
+### Block Diagram
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    NASA Space Apps Challenge App            │
+├─────────────────────────────┬───────────────────────────────┤
+│        LEFT PANEL           │        RIGHT PANEL            │
+│     Tavus Video Call        │     Dynamic Slideshow         │
+│                             │                               │
+│  ┌─────────────────────┐   │  ┌─────────────────────────┐  │
+│  │                     │   │  │                         │  │
+│  │   AI Astronaut      │   │  │    Current Image        │  │
+│  │   (Video Stream)    │   │  │                         │  │
+│  │                     │   │  │                         │  │
+│  └─────────────────────┘   │  └─────────────────────────┘  │
+│                             │                               │
+│  ┌─────────────────────┐   │  ┌─────────────────────────┐  │
+│  │   User Video        │   │  │    Image Gallery        │  │
+│  │   (Webcam)          │   │  │    (Thumbnails)         │  │
+│  └─────────────────────┘   │  └─────────────────────────┘  │
+└─────────────────────────────┴───────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Backend Services                         │
+├─────────────────────┬─────────────────────┬─────────────────┤
+│   Tavus API         │   Image Search API  │   SSE Server    │
+│   (Conversation)    │   (FAISS + RAG)     │   (Real-time)   │
+└─────────────────────┴─────────────────────┴─────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Data Sources                             │
+├─────────────────────┬─────────────────────┬─────────────────┤
+│   NASA Image API    │   ISS Database      │   NBL Images    │
+│   (Cupola Photos)   │   (Organized Data)  │   (Training)    │
+└─────────────────────┴─────────────────────┴─────────────────┘
+```
+
+### Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Frontend as Frontend App
+    participant Tavus as Tavus API
+    participant Backend as Backend Services
+    participant Search as Image Search API
+    participant NASA as NASA Data Sources
+    
+    User->>Frontend: Opens app
+    Frontend->>Backend: Establishes SSE connection
+    Backend-->>Frontend: Connection established
+    
+    User->>Tavus: "Show me the Cupola"
+    Tavus->>Tavus: Processes speech & context
+    Tavus->>Backend: Calls fetch_relevant_image tool
+    Backend->>Search: Searches for Cupola images
+    Search->>NASA: Queries NASA image database
+    NASA-->>Search: Returns image URLs + metadata
+    Search-->>Backend: Returns processed results
+    Backend->>Frontend: Sends images via SSE
+    Frontend->>Frontend: Updates slideshow display
+    Tavus->>User: "Here's what the Cupola looks like..."
+    
+    Note over Frontend,NASA: Real-time coordination continues
+    Note over Frontend,NASA: Images update as conversation flows
+```
+
+## 🔄 Real-time Communication Flow
+
+### Server-Sent Events (SSE) Implementation
+
+**1. Connection Establishment**
+```javascript
+// Frontend opens persistent connection
+const eventSource = new EventSource('/api/slideshow-stream/ABC123');
+```
+
+**2. Tool Call Processing**
+```javascript
+// Tavus calls backend tool
+app.post('/api/fetch-image', async (req, res) => {
+  const { conversation_id, topic, location } = req.body;
+  
+  // Fetch images from search API
+  const images = await searchNASAImages({ topic, location });
+  
+  // Send to frontend via SSE
+  const connection = connections.get(conversation_id);
+  if (connection) {
+    connection.write(`data: ${JSON.stringify({
+      type: 'UPDATE_SLIDESHOW',
+      images: images
+    })}\n\n`);
+  }
+  
+  res.json({ success: true });
+});
+```
+
+**3. Frontend Updates**
+```javascript
+// Frontend receives and processes updates
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  if (data.type === 'UPDATE_SLIDESHOW') {
+    slideshow.updateImages(data.images);
+  }
+};
+```
 
 ## 🛠️ Development
 
