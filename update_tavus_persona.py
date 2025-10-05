@@ -9,14 +9,14 @@ import json
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv('frontend/.env.local')
+# Load environment variables from backend .env.local (secure credentials)
+load_dotenv('.env.local')
 
 def update_persona_tools():
     """Update the Tavus persona with our fetch_relevant_image tool"""
     
-    api_key = os.getenv('NEXT_PUBLIC_TAVUS_API_KEY')
-    persona_id = os.getenv('NEXT_PUBLIC_TAVUS_PERSONA_ID')
+    api_key = os.getenv('TAVUS_API_KEY')
+    persona_id = os.getenv('TAVUS_PERSONA_ID')
     
     if not api_key or not persona_id:
         print("❌ Missing TAVUS_API_KEY or TAVUS_PERSONA_ID in environment variables")

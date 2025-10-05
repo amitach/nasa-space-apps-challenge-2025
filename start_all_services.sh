@@ -148,47 +148,33 @@ if [ -f "frontend/.env.local" ]; then
     sed -i '' "s|NEXT_PUBLIC_SSE_URL=.*|NEXT_PUBLIC_SSE_URL=http://localhost:5002/events|g" frontend/.env.local
     sed -i '' "s|NEXT_PUBLIC_RAG_API_URL=.*|NEXT_PUBLIC_RAG_API_URL=http://localhost:5001|g" frontend/.env.local
     sed -i '' "s|NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://localhost:5002|g" frontend/.env.local
-    sed -i '' "s|NEXT_PUBLIC_TAVUS_CALLBACK_URL=.*|NEXT_PUBLIC_TAVUS_CALLBACK_URL=$NGROK_API_URL_5002/api/tavus-webhook|g" frontend/.env.local
-    sed -i '' "s|NEXT_PUBLIC_WEBHOOK_URL=.*|NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook|g" frontend/.env.local
     
     echo "    ✅ Updated frontend/.env.local"
     echo "      • RAG API: http://localhost:5001"
     echo "      • SSE Server: http://localhost:5002/events (localhost - ngrok blocks SSE)"
-    echo "      • Webhook URL: $NGROK_API_URL_5002/api/tavus-webhook (ngrok - for Tavus callbacks)"
+    echo "      • API URL: http://localhost:5002"
 else
     echo "    ⚠️  frontend/.env.local not found - creating it..."
     cat > frontend/.env.local << EOF
-NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events
-NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001
-NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002
-NEXT_PUBLIC_TAVUS_API_KEY=eb513dc5bc324cba8fe2210653b512ce
-NEXT_PUBLIC_TAVUS_REPLICA_ID=r92debe21318
-NEXT_PUBLIC_TAVUS_PERSONA_ID=p8ea2e6b8a04
-NEXT_PUBLIC_TAVUS_CALLBACK_URL=$NGROK_API_URL_5002/api/tavus-webhook
-NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook
+NEXT_PUBLIC_SSE_URL=http://localhost:5002/events
+NEXT_PUBLIC_RAG_API_URL=http://localhost:5001
+NEXT_PUBLIC_API_URL=http://localhost:5002
 EOF
-    echo "    ✅ Created frontend/.env.local with ngrok URLs"
+    echo "    ✅ Created frontend/.env.local"
 fi
 
 # Also update project root .env.local for Python scripts
 if [ -f ".env.local" ]; then
     cp .env.local .env.local.backup
-    sed -i '' "s|NEXT_PUBLIC_SSE_URL=.*|NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events|g" .env.local
-    sed -i '' "s|NEXT_PUBLIC_RAG_API_URL=.*|NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001|g" .env.local
-    sed -i '' "s|NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002|g" .env.local
-    sed -i '' "s|NEXT_PUBLIC_WEBHOOK_URL=.*|NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook|g" .env.local
-    echo "    ✅ Updated project root .env.local for Python scripts"
+    # Note: Tavus credentials are now in backend .env.local only, not exposed to frontend
+    echo "    ✅ Project root .env.local preserved (contains backend-only Tavus credentials)"
 else
-    cat > .env.local << EOF
-NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events
-NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001
-NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002
-NEXT_PUBLIC_TAVUS_API_KEY=eb513dc5bc324cba8fe2210653b512ce
-NEXT_PUBLIC_TAVUS_REPLICA_ID=r92debe21318
-NEXT_PUBLIC_TAVUS_PERSONA_ID=p8ea2e6b8a04
-NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook
-EOF
-    echo "    ✅ Created project root .env.local"
+    echo "    ⚠️  WARNING: Project root .env.local not found!"
+    echo "    Please create it with your Tavus credentials (backend-only):"
+    echo "    TAVUS_API_KEY=your_key_here"
+    echo "    TAVUS_REPLICA_ID=your_replica_id"
+    echo "    TAVUS_PERSONA_ID=your_persona_id"
+    echo "    WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook"
 fi
 
 # Start Frontend
@@ -222,9 +208,9 @@ echo "  • RAG API:      http://localhost:5001 -> $NGROK_API_URL_5001"
 echo "  • SSE Server:   http://localhost:5002 -> $NGROK_API_URL_5002"
 echo "  • Frontend:     http://localhost:3000"
 echo ""
-echo "🔄 Configuration Files Updated:"
-echo "  • frontend/.env.local - Updated with ngrok URLs (Next.js uses this)"
-echo "  • .env.local - Updated for Python scripts"
+echo "🔄 Configuration Files:"
+echo "  • frontend/.env.local - Frontend-safe environment variables only"
+echo "  • .env.local - Backend credentials (Tavus API keys) - NOT exposed to frontend"
 echo "  • Webhook URL: $NGROK_API_URL_5002/api/tavus-webhook"
 echo "  • Backup files created with .backup extension"
 echo ""

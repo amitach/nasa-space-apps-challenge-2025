@@ -8,10 +8,17 @@ import time
 import logging
 import queue
 import threading
+import requests
 from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 import sys
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env.local (backend credentials)
+load_dotenv('.env.local')
+load_dotenv()  # Also load .env if it exists
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from src.search.engine import ISSSearchEngine
 
@@ -106,6 +113,76 @@ def sse_events():
     response.headers["Access-Control-Allow-Origin"] = "*"
     response.headers["Access-Control-Allow-Headers"] = "Cache-Control"
     return response
+
+@sse_app.route('/api/tavus-conversation', methods=['POST'])
+def create_tavus_conversation():
+    """SECURE: Create Tavus conversation (API key stays on backend)"""
+    try:
+        # Frontend doesn't need to send any data - we have everything on backend
+        # (request.json might be None or empty, that's OK)
+        
+        # Get API credentials from environment (NEVER exposed to frontend)
+        api_key = os.getenv('TAVUS_API_KEY')
+        persona_id = os.getenv('TAVUS_PERSONA_ID')
+        replica_id = os.getenv('TAVUS_REPLICA_ID')
+        callback_url = os.getenv('TAVUS_CALLBACK_URL', 'http://localhost:5002/api/tavus-webhook')
+        
+        logger.info(f"Checking Tavus credentials...")
+        logger.info(f"  API Key: {'✓' if api_key else '✗ MISSING'}")
+        logger.info(f"  Persona ID: {'✓' if persona_id else '✗ MISSING'}")
+        logger.info(f"  Replica ID: {'✓' if replica_id else '✗ MISSING'}")
+        logger.info(f"  Callback URL: {callback_url}")
+        
+        if not all([api_key, persona_id, replica_id]):
+            logger.error("Missing Tavus credentials in environment")
+            logger.error(f"  Missing: {', '.join([k for k, v in [('API_KEY', api_key), ('PERSONA_ID', persona_id), ('REPLICA_ID', replica_id)] if not v])}")
+            return jsonify({"error": "Server configuration error - missing credentials"}), 500
+        
+        # Create conversation via Tavus API
+        logger.info("Creating Tavus conversation...")
+        response = requests.post(
+            'https://tavusapi.com/v2/conversations',
+            headers={
+                'Content-Type': 'application/json',
+                'x-api-key': api_key
+            },
+            json={
+                'persona_id': persona_id,
+                'replica_id': replica_id,
+                'callback_url': callback_url,
+                'custom_greeting': "Hello! I'm your ISS guide. Ask me anything about the International Space Station!",
+                'properties': {
+                    'max_call_duration': 3600,
+                    'participant_left_timeout': 60,
+                    'enable_recording': False,
+                    'apply_greenscreen': True
+                }
+            }
+        )
+        
+        if not response.ok:
+            error_text = response.text
+            logger.error(f"Tavus API error: {response.status_code} - {error_text}")
+            
+            # Try to extract error message from Tavus response
+            try:
+                error_data = response.json()
+                error_msg = error_data.get('message', 'Failed to create conversation')
+            except:
+                error_msg = 'Failed to create conversation'
+            
+            return jsonify({"error": error_msg}), response.status_code
+        
+        conversation_data = response.json()
+        logger.info(f"Conversation created: {conversation_data.get('conversation_id')}")
+        
+        # Return ONLY the conversation data (NO API KEY!)
+        return jsonify(conversation_data), 200
+        
+    except Exception as e:
+        logger.error(f"Error creating conversation: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @sse_app.route('/api/tavus-webhook', methods=['POST'])
 def tavus_webhook():

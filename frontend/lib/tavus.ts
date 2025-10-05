@@ -177,7 +177,7 @@ export class TavusClient {
             max_call_duration: 3600,
             participant_left_timeout: 60,
             enable_recording: false,
-            apply_greenscreen: false
+            apply_greenscreen: true  // Enable green screen for ISS background compositing
           }
           // Note: tools are configured via webhook, not in conversation creation
         };
