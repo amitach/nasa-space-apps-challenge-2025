@@ -1,0 +1,25 @@
+2025-10-04 21:55:41,029 - src.search.engine - INFO - Loaded 40 images
+2025-10-04 21:55:41,029 - src.search.engine - INFO - Initializing SentenceTransformer model...
+2025-10-04 21:55:41,029 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-10-04 21:55:42,182 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: mps
+2025-10-04 21:55:42,296 - src.search.engine - INFO - SentenceTransformer model loaded.
+2025-10-04 21:55:42,296 - src.search.engine - INFO - Generating embeddings...
+Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches: 100%|██████████| 2/2 [00:00<00:00, 15.51it/s]Batches: 100%|██████████| 2/2 [00:00<00:00, 15.50it/s]
+2025-10-04 21:55:42,427 - src.search.engine - INFO - Built FAISS index with 40 vectors
+2025-10-04 21:55:42,427 - src.search.engine - INFO - Search engine initialized successfully
+2025-10-04 21:55:42,427 - src.api.app - INFO - Search engine initialized successfully
+🚀 Starting ISS Image Search API...
+📍 Host: 0.0.0.0
+📍 Port: 5001
+🔧 Debug: False
+✅ Search engine ready
+ * Serving Flask app 'src.api.app'
+ * Debug mode: off
+2025-10-04 21:55:42,434 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://10.0.0.109:5001
+2025-10-04 21:55:42,434 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-10-04 21:55:43,405 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:55:43] "GET /health HTTP/1.1" 200 -
+/Users/amit/.pyenv/versions/3.10.14/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

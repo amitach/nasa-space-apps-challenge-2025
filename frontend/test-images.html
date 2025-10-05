@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Image Loading</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .image-container { margin: 20px 0; }
+        .image-container img { max-width: 300px; height: auto; border: 1px solid #ccc; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Test Image Loading</h1>
+    <button onclick="testImageSearch()">Test Image Search</button>
+    <div id="results"></div>
+
+    <script>
+        async function testImageSearch() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>Testing image search...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5002/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: 'Cupola module', top_k: 5 })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                if (data.success && data.data.images) {
+                    resultsDiv.innerHTML = '<p class="success">✅ Images loaded successfully!</p>';
+                    
+                    data.data.images.forEach((image, index) => {
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'image-container';
+                        imageDiv.innerHTML = `
+                            <h3>Image ${index + 1}: ${image.nasa_id}</h3>
+                            <img src="${image.image_url}" alt="${image.description}" 
+                                 onload="console.log('Image ${index + 1} loaded successfully')"
+                                 onerror="console.error('Image ${index + 1} failed to load:', this.src)">
+                            <p><strong>Description:</strong> ${image.description}</p>
+                            <p><strong>Keywords:</strong> ${image.keywords.join(', ')}</p>
+                            <p><strong>Similarity Score:</strong> ${image.similarity_score.toFixed(3)}</p>
+                        `;
+                        resultsDiv.appendChild(imageDiv);
+                    });
+                } else {
+                    resultsDiv.innerHTML = '<p class="error">❌ Failed to load images</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `<p class="error">❌ Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
