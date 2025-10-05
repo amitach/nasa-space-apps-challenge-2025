@@ -39,7 +39,7 @@ export default function HomeCorrected() {
   const [currentImages, setCurrentImages] = useState<ImageResult[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [sseConnected, setSseConnected] = useState(false);
-  const [tavusClient, setTavusClient] = useState<TavusClient | null>(null);
+  const [tavusClient, setTavusClient] = useState<TavusClient | null>({} as any); // Initialize immediately since backend handles auth
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -74,7 +74,6 @@ export default function HomeCorrected() {
   useEffect(() => {
     setCurrentImages([]);
     setCurrentImageIndex(0);
-    setTavusClient({} as any); // Placeholder, actual calls go through backend
     console.log('✅ Frontend initialized');
   }, []);
 
@@ -551,38 +550,68 @@ export default function HomeCorrected() {
   // All Tavus API calls now go through secure backend endpoints
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white flex flex-col items-center justify-center p-4">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-2">🚀 ISS Explorer</h1>
-        <p className="text-gray-300">AI-powered video chat with real-time image display</p>
-      </div>
-
-      {/* Status Indicators */}
-      <div className="flex flex-wrap gap-4 mb-6">
-        <div className={`px-4 py-2 rounded-lg ${sseConnected ? 'bg-green-600' : 'bg-red-600'}`}>
-          SSE: {sseConnected ? 'Connected' : 'Disconnected'}
-        </div>
-        <div className={`px-4 py-2 rounded-lg ${tavusConnected ? 'bg-green-600' : 'bg-gray-600'}`}>
-          Tavus: {tavusConnected ? 'Connected' : 'Disconnected'}
-        </div>
-        <div className={`px-4 py-2 rounded-lg ${currentImages.length > 0 ? 'bg-blue-600' : 'bg-gray-600'}`}>
-          Images: {currentImages.length}
-        </div>
-        {isFetchingImages && (
-          <div className="px-4 py-2 rounded-lg bg-yellow-600 animate-pulse flex items-center gap-2">
-            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>Fetching: {lastFetchQuery}</span>
+    <div className="h-screen bg-slate-950 text-white flex flex-col relative overflow-hidden">
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 opacity-[0.02]" style={{
+        backgroundImage: 'linear-gradient(rgba(100, 100, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(100, 100, 255, 0.1) 1px, transparent 1px)',
+        backgroundSize: '50px 50px'
+      }}></div>
+      
+      {/* Header Bar */}
+      <div className="border-b border-gray-800 bg-black/50 backdrop-blur-sm relative z-50">
+        <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-6">
+            <div>
+              <h1 className="text-xl font-bold tracking-widest text-white">ISS EXPLORER</h1>
+              <p className="text-[10px] text-gray-500 font-mono tracking-wider uppercase">Mission Control Interface</p>
+            </div>
           </div>
-        )}
+          
+          {/* Status Indicators */}
+          <div className="flex gap-3">
+            <div className={`px-3 py-1.5 rounded border font-mono text-[10px] tracking-wider transition-all duration-200 ${
+              sseConnected 
+                ? 'bg-green-950/30 border-green-500/50 text-green-400' 
+                : 'bg-red-950/30 border-red-500/50 text-red-400'
+            }`}>
+              <span className="flex items-center gap-1.5">
+                <span className={`w-1 h-1 rounded-full ${sseConnected ? 'bg-green-400' : 'bg-red-400'}`}></span>
+                SSE
+              </span>
+            </div>
+            <div className={`px-3 py-1.5 rounded border font-mono text-[10px] tracking-wider transition-all duration-200 ${
+              tavusConnected 
+                ? 'bg-blue-950/30 border-blue-500/50 text-blue-400' 
+                : 'bg-gray-800/50 border-gray-600/50 text-gray-400'
+            }`}>
+              <span className="flex items-center gap-1.5">
+                <span className={`w-1 h-1 rounded-full ${tavusConnected ? 'bg-blue-400' : 'bg-gray-500'}`}></span>
+                TAVUS
+              </span>
+            </div>
+            <div className={`px-3 py-1.5 rounded border font-mono text-[10px] tracking-wider transition-all duration-200 ${
+              currentImages.length > 0 
+                ? 'bg-purple-950/30 border-purple-500/50 text-purple-400' 
+                : 'bg-gray-800/50 border-gray-600/50 text-gray-400'
+            }`}>
+              IMG: {currentImages.length}
+            </div>
+            {isFetchingImages && (
+              <div className="px-3 py-1.5 rounded border border-yellow-500/50 bg-yellow-950/30 flex items-center gap-1.5 font-mono text-[10px] tracking-wider text-yellow-400">
+                <svg className="animate-spin h-2.5 w-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                FETCH
+              </div>
+            )}
+          </div>
+        </div>
       </div>
       
       {/* Audio Blocked Notification */}
       {audioBlocked && tavusConnected && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-orange-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 z-50 cursor-pointer hover:bg-orange-700"
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-orange-950/90 text-white px-4 py-2 rounded border border-orange-500/50 flex items-center gap-2 z-50 cursor-pointer backdrop-blur-xl"
              onClick={() => {
                if (audioRef.current) {
                  audioRef.current.play().then(() => {
@@ -590,242 +619,289 @@ export default function HomeCorrected() {
                  }).catch(e => console.error('Failed to play audio:', e));
                }
              }}>
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
           </svg>
-          <div>
-            <p className="font-semibold">🔊 Audio Muted</p>
-            <p className="text-sm">Click here to enable audio</p>
-          </div>
+          <p className="text-xs font-mono">AUDIO MUTED - CLICK TO ENABLE</p>
         </div>
       )}
       
       {/* Success Notification */}
       {showSuccessNotification && (
-        <div className="fixed top-20 right-8 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-bounce z-50">
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="fixed top-20 right-6 bg-green-950/90 text-white px-4 py-2 rounded border border-green-500/50 flex items-center gap-2 z-50 backdrop-blur-xl">
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
           </svg>
-          <div>
-            <p className="font-semibold">✅ Images Loaded!</p>
-            <p className="text-sm">{currentImages.length} images for "{lastQuery}"</p>
-          </div>
+          <p className="text-xs font-mono">{currentImages.length} IMAGES LOADED</p>
         </div>
       )}
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-600 text-white p-4 rounded-lg mb-6 max-w-md">
-          <p className="font-semibold">Error:</p>
-          <p>{error}</p>
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-950/90 text-white px-4 py-2 rounded border border-red-500/50 backdrop-blur-xl z-50 max-w-md">
+          <p className="text-xs font-mono">ERROR: {error}</p>
         </div>
       )}
 
-      {/* Main Content */}
-      <div className="flex flex-col lg:flex-row gap-8 w-full max-w-7xl">
-        {/* Video Chat Section */}
-        <div className="flex-1">
-          <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-2xl font-semibold mb-4">Video Chat</h2>
+      {/* Main Content Area */}
+      <div className="flex-1 flex relative">
+        {/* Video Section - Full Width/Height */}
+        <div className={`flex-1 flex flex-col transition-all duration-500 ease-out ${
+          currentImages.length > 0 ? 'mr-0' : ''
+        }`}>
+          {/* Video Display - Calculate height to leave room for controls */}
+          <div className="relative bg-black z-10" style={{ height: 'calc(100vh - 57px - 80px)' }}>
+            {useGreenScreen && replicaVideoTrack ? (
+              <GreenScreenVideo 
+                videoTrack={replicaVideoTrack}
+                backgroundImage={cupolaBackgroundUrl}
+              />
+            ) : (
+              <div 
+                ref={dailyFrameRef}
+                className="w-full h-full"
+              />
+            )}
             
-            {/* Video Display */}
-            <div className="relative w-full h-96 bg-gray-900 rounded-lg mb-4 overflow-hidden" style={{ minHeight: '400px' }}>
-              {useGreenScreen && replicaVideoTrack ? (
-                <GreenScreenVideo 
-                  videoTrack={replicaVideoTrack}
-                  backgroundImage={cupolaBackgroundUrl}
-                />
-              ) : (
-                <div 
-                  ref={dailyFrameRef}
-                  className="w-full h-full"
-                />
-              )}
-              
-              {!replicaVideoTrack && tavusConnected && (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                  <div className="text-center">
-                    <svg className="animate-spin h-12 w-12 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <p>Waiting for video...</p>
+            {!replicaVideoTrack && tavusConnected && (
+              <div className="absolute inset-0 flex items-center justify-center text-gray-400 bg-slate-900/50">
+                <div className="text-center">
+                  <svg className="animate-spin h-12 w-12 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <p className="text-xs font-mono tracking-wider">ESTABLISHING CONNECTION</p>
+                </div>
+              </div>
+            )}
+            
+            {!tavusConnected && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-black">
+                <div className="text-center space-y-8">
+                  <div className="relative">
+                    <div className="w-24 h-24 mx-auto border-2 border-gray-700 rounded-lg flex items-center justify-center">
+                      <div className="w-16 h-16 border border-gray-600 rounded"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-base font-mono tracking-widest text-gray-500">SYSTEM STANDBY</p>
+                    <p className="text-xs font-mono text-gray-600 mt-2">Awaiting Session Initiation</p>
                   </div>
                 </div>
-              )}
-            </div>
-            
-            {/* Green Screen Toggle */}
-            <div className="mb-4 flex items-center gap-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={useGreenScreen}
-                  onChange={(e) => setUseGreenScreen(e.target.checked)}
-                  className="w-4 h-4"
-                />
-                <span className="text-sm">Use Cupola Background</span>
-              </label>
-            </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Bottom Control Bar */}
+          <div className="border-t border-gray-800 bg-black/95 backdrop-blur-md relative z-50">
+            <div className="px-8 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-8">
+                {/* Green Screen Toggle */}
+                <label className="flex items-center gap-2.5 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={useGreenScreen}
+                    onChange={(e) => setUseGreenScreen(e.target.checked)}
+                    className="w-4 h-4 accent-blue-500 cursor-pointer"
+                  />
+                  <span className="text-xs font-mono tracking-wider text-gray-400 group-hover:text-gray-300 transition-colors">CUPOLA BACKGROUND</span>
+                </label>
+                
+                {/* Session Info */}
+                {tavusConnected && (
+                  <div className="flex items-center gap-2 text-xs font-mono text-gray-500">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+                    <span>LIVE SESSION</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Controls */}
+              <div className="flex items-center gap-3">
+                {!tavusConnected ? (
+                  <button
+                    onClick={startConversation}
+                    disabled={isLoading || !tavusClient}
+                    className="px-10 py-2.5 bg-blue-600/30 hover:bg-blue-600/40 disabled:bg-gray-800 disabled:cursor-not-allowed border border-blue-500/70 disabled:border-gray-700 rounded font-mono text-sm tracking-widest text-blue-300 hover:text-blue-200 disabled:text-gray-600 transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30"
+                  >
+                    {isLoading ? 'STARTING...' : 'START SESSION'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={endConversation}
+                    className="px-10 py-2.5 bg-red-600/30 hover:bg-red-600/40 border border-red-500/70 rounded font-mono text-sm tracking-widest text-red-300 hover:text-red-200 transition-all duration-200 shadow-lg shadow-red-500/20 hover:shadow-red-500/30"
+                  >
+                    END SESSION
+                  </button>
+                )}
+                
+                <div className="w-px h-8 bg-gray-800"></div>
+                
+                {/* Emergency Reset - Always visible */}
+                {(tavusConnected || dailyCallFrame || tavusConversation) && (
+                  <button
+                    onClick={() => {
+                      // Force reset everything
+                      if (dailyCallFrame) {
+                        dailyCallFrame.destroy().catch(() => {});
+                        setDailyCallFrame(null);
+                      }
+                      setTavusConversation(null);
+                      setTavusConnected(false);
+                      setReplicaVideoTrack(null);
+                      setReplicaAudioTrack(null);
+                      setCurrentImages([]);
+                      setCurrentImageIndex(0);
+                      console.log('🔄 Emergency reset triggered');
+                    }}
+                    className="px-5 py-2.5 bg-gray-700/20 hover:bg-gray-700/40 border border-gray-600/40 hover:border-gray-600/60 rounded font-mono text-xs tracking-wider text-gray-400 hover:text-gray-300 transition-all duration-200"
+                    title="Force reset session"
+                  >
+                    RESET
+                  </button>
+                )}
 
-            {/* Controls */}
-            <div className="flex flex-wrap gap-2">
-              {!tavusConnected ? (
                 <button
-                  onClick={startConversation}
-                  disabled={isLoading || !tavusClient}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 rounded-lg font-semibold"
+                  onClick={testSSE}
+                  className="px-5 py-2.5 bg-green-600/10 hover:bg-green-600/20 border border-green-500/30 hover:border-green-500/50 rounded font-mono text-xs tracking-wider text-green-400 hover:text-green-300 transition-all duration-200"
                 >
-                  {isLoading ? 'Starting...' : 'Start Conversation'}
+                  SSE
                 </button>
-              ) : (
+
                 <button
-                  onClick={endConversation}
-                  className="px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg font-semibold"
+                  onClick={testImageSearch}
+                  disabled={!tavusConnected}
+                  className={`px-5 py-2.5 border rounded font-mono text-xs tracking-wider transition-all duration-200 ${
+                    tavusConnected 
+                      ? 'bg-purple-600/10 hover:bg-purple-600/20 border-purple-500/30 hover:border-purple-500/50 text-purple-400 hover:text-purple-300' 
+                      : 'bg-gray-800/30 border-gray-700/40 text-gray-600 cursor-not-allowed'
+                  }`}
                 >
-                  End Conversation
+                  IMG
                 </button>
-              )}
 
-              <button
-                onClick={testSSE}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg"
-              >
-                Test SSE
-              </button>
-
-              <button
-                onClick={testImageSearch}
-                disabled={!tavusConnected}
-                className={`px-4 py-2 rounded-lg ${
-                  tavusConnected 
-                    ? 'bg-purple-600 hover:bg-purple-700' 
-                    : 'bg-gray-600 cursor-not-allowed'
-                }`}
-              >
-                Test Images
-              </button>
-
-              <button
-                onClick={testTavusToolCall}
-                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg"
-              >
-                Test Tool Call
-              </button>
+                <button
+                  onClick={testTavusToolCall}
+                  className="px-5 py-2.5 bg-orange-600/10 hover:bg-orange-600/20 border border-orange-500/30 hover:border-orange-500/50 rounded font-mono text-xs tracking-wider text-orange-400 hover:text-orange-300 transition-all duration-200"
+                >
+                  TOOL
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Image Display Section */}
-        <div className="flex-1">
-          <div className="bg-gray-800 rounded-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">ISS Images</h2>
-              {lastQuery && currentImages.length > 0 && (
-                <div className="text-sm text-gray-400">
-                  Query: <span className="text-blue-400 font-mono">"{lastQuery}"</span>
-                </div>
-              )}
+        {/* Sliding Image Panel - Only visible when images exist */}
+        <div className={`fixed right-0 top-[57px] bottom-0 w-[450px] bg-black/95 backdrop-blur-xl border-l border-gray-800 transition-transform duration-500 ease-out z-40 ${
+          currentImages.length > 0 ? 'translate-x-0' : 'translate-x-full'
+        }`}>
+          <div className="h-full flex flex-col">
+            {/* Panel Header */}
+            <div className="border-b border-gray-800 px-4 py-3 flex items-center justify-between">
+              <div>
+                <h2 className="text-sm font-bold tracking-wider text-gray-200 font-mono">IMAGE DATABASE</h2>
+                {lastQuery && (
+                  <p className="text-[10px] text-gray-500 font-mono mt-0.5">QUERY: {lastQuery}</p>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setCurrentImages([]);
+                  setCurrentImageIndex(0);
+                }}
+                className="text-gray-500 hover:text-gray-300 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             
             {/* Loading State */}
             {isFetchingImages && (
-              <div className="bg-yellow-900 bg-opacity-30 border-2 border-yellow-600 rounded-lg p-6 mb-4">
-                <div className="flex items-center gap-4">
-                  <svg className="animate-spin h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <div className="px-4 py-3 border-b border-gray-800 bg-yellow-950/10">
+                <div className="flex items-center gap-2">
+                  <svg className="animate-spin h-3 w-3 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  <div>
-                    <p className="text-lg font-semibold text-yellow-400">🔍 Fetching Images...</p>
-                    <p className="text-sm text-gray-300">Searching for: <span className="font-mono text-yellow-300">"{lastFetchQuery}"</span></p>
-                    {fetchTimestamp && (
-                      <p className="text-xs text-gray-400 mt-1">
-                        Started: {fetchTimestamp.toLocaleTimeString()}
-                      </p>
-                    )}
-                  </div>
+                  <p className="text-xs font-mono tracking-wider text-yellow-400">FETCHING...</p>
                 </div>
               </div>
             )}
             
-            {currentImages.length > 0 ? (
-              <div className="space-y-4">
-                {/* Current Image */}
-                <div className="relative">
-                  <img
-                    src={currentImages[currentImageIndex]?.image_url}
-                    alt={currentImages[currentImageIndex]?.description}
-                    className="w-full h-64 object-cover rounded-lg"
-                    onError={(e) => {
-                      console.error('Image failed to load:', e);
-                      e.currentTarget.src = '/placeholder-image.jpg';
-                    }}
-                  />
+            {/* Image Content */}
+            <div className="flex-1 overflow-y-auto">
+              {currentImages.length > 0 && (
+                <div className="p-4 space-y-4">
+                  {/* Current Image */}
+                  <div className="relative">
+                    <img
+                      src={currentImages[currentImageIndex]?.image_url}
+                      alt={currentImages[currentImageIndex]?.description}
+                      className="w-full aspect-video object-cover rounded border border-gray-800"
+                      onError={(e) => {
+                        console.error('Image failed to load:', e);
+                        e.currentTarget.src = '/placeholder-image.jpg';
+                      }}
+                    />
+                  </div>
                   
                   {/* Image Navigation */}
                   {currentImages.length > 1 && (
-                    <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
+                    <div className="flex gap-2">
                       <button
                         onClick={() => setCurrentImageIndex((prev) => (prev - 1 + currentImages.length) % currentImages.length)}
-                        className="px-3 py-1 bg-black bg-opacity-50 rounded text-white"
+                        className="flex-1 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded text-white text-xs font-mono transition-colors"
                       >
-                        ←
+                        PREV
                       </button>
-                      <span className="px-3 py-1 bg-black bg-opacity-50 rounded text-white">
-                        {currentImageIndex + 1} / {currentImages.length}
+                      <span className="px-4 py-1.5 bg-gray-900 border border-gray-700 rounded text-white text-xs font-mono">
+                        {currentImageIndex + 1}/{currentImages.length}
                       </span>
                       <button
                         onClick={() => setCurrentImageIndex((prev) => (prev + 1) % currentImages.length)}
-                        className="px-3 py-1 bg-black bg-opacity-50 rounded text-white"
+                        className="flex-1 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 border border-gray-700 rounded text-white text-xs font-mono transition-colors"
                       >
-                        →
+                        NEXT
                       </button>
                     </div>
                   )}
-                </div>
 
-                {/* Image Info */}
-                <div className="text-sm text-gray-300">
-                  <p className="font-semibold">Description:</p>
-                  <p>{currentImages[currentImageIndex]?.description}</p>
-                  
-                  <p className="font-semibold mt-2">Keywords:</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {currentImages[currentImageIndex]?.keywords?.map((keyword, idx) => (
-                      <span key={idx} className="px-2 py-1 bg-blue-600 rounded text-xs">
-                        {keyword}
-                      </span>
-                    ))}
+                  {/* Image Info */}
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[10px] font-mono tracking-wider text-gray-500 mb-1.5">DESCRIPTION</p>
+                      <p className="text-xs text-gray-300 leading-relaxed">{currentImages[currentImageIndex]?.description}</p>
+                    </div>
+                    
+                    <div>
+                      <p className="text-[10px] font-mono tracking-wider text-gray-500 mb-1.5">KEYWORDS</p>
+                      <div className="flex flex-wrap gap-1">
+                        {currentImages[currentImageIndex]?.keywords?.map((keyword, idx) => (
+                          <span key={idx} className="px-2 py-0.5 bg-blue-600/20 border border-blue-500/50 rounded text-[10px] font-mono text-blue-400">
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-[10px] font-mono tracking-wider text-gray-500 mb-1">SIMILARITY</p>
+                        <p className="text-base font-mono font-bold text-green-400">{currentImages[currentImageIndex]?.similarity_score?.toFixed(3)}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-mono tracking-wider text-gray-500 mb-1">NASA ID</p>
+                        <p className="text-[10px] font-mono text-gray-400 break-all">{currentImages[currentImageIndex]?.nasa_id}</p>
+                      </div>
+                    </div>
                   </div>
-                  
-                  <p className="font-semibold mt-2">Similarity Score:</p>
-                  <p>{currentImages[currentImageIndex]?.similarity_score?.toFixed(3)}</p>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center text-gray-400 py-8">
-                {tavusConnected ? (
-                  <>
-                    <p>No images loaded yet.</p>
-                    <p className="text-sm mt-2">Ask the AI to show you images or use the test button!</p>
-                  </>
-                ) : (
-                  <>
-                    <p>No active conversation.</p>
-                    <p className="text-sm mt-2">Start a conversation to see images or test the webhook!</p>
-                  </>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="mt-8 text-center text-gray-400 text-sm">
-        <p>ISS Explorer - NASA Space Apps Challenge 2025</p>
-        <p>Powered by Tavus AI, Daily.co, and NASA Image API</p>
       </div>
       
       {/* Hidden audio element for Tavus audio */}
