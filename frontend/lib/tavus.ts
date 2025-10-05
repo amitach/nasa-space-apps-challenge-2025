@@ -32,7 +32,7 @@ export class TavusClient {
     this.apiKey = config.apiKey;
     this.personaId = config.personaId;
     this.replicaId = config.replicaId;
-    this.callbackUrl = config.callbackUrl || 'https://d51fff116bd1.ngrok-free.app/api/tavus-webhook';
+this.callbackUrl = config.callbackUrl || 'https://consulting-converter-insertion-maui.trycloudflare.com/api/tavus-webhook';
   }
 
   setSSEConnectionId(connectionId: string) {

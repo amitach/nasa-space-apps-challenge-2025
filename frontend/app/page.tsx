@@ -45,9 +45,9 @@ export default function HomeCorrected() {
   const TAVUS_API_KEY = process.env.NEXT_PUBLIC_TAVUS_API_KEY || '';
   const TAVUS_PERSONA_ID = process.env.NEXT_PUBLIC_TAVUS_PERSONA_ID || '';
   const TAVUS_REPLICA_ID = process.env.NEXT_PUBLIC_TAVUS_REPLICA_ID || '';
-  const TAVUS_CALLBACK_URL = process.env.NEXT_PUBLIC_TAVUS_CALLBACK_URL || 'https://d51fff116bd1.ngrok-free.app/api/tavus-webhook';
-  const SSE_SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL || 'http://localhost:5002/events';
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+  const TAVUS_CALLBACK_URL = process.env.NEXT_PUBLIC_TAVUS_CALLBACK_URL || 'https://consulting-converter-insertion-maui.trycloudflare.com/api/tavus-webhook';
+  const SSE_SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL || 'https://cbf4f5efb944.ngrok-free.app/events';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://cbf4f5efb944.ngrok-free.app';
 
   // SSE connection
   const { connected: sseIsConnected, images: sseImages, lastQuery } = useSSE(SSE_SERVER_URL);

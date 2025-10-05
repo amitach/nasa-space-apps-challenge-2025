@@ -1,0 +1,30 @@
+.venv
+__pycache__
+
+# Environment variables
+.env
+# .env.local - keeping for now as it contains ngrok URLs
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Backup files
+*.backup
+.env.local.backup
+
+# Python version files
+.python-version
+
+# Log files (temporary)
+logs/*.log
+logs/ngrok*.log
+
+# Large text files
+tavus-llms-full.txt
+
+# Node modules
+node_modules/
+
+# Next.js
+.next/
+out/

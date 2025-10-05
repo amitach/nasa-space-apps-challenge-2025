@@ -24,6 +24,12 @@ if ! command -v node &> /dev/null; then
     exit 1
 fi
 
+# Check if ngrok is available
+if ! command -v ngrok &> /dev/null; then
+    echo "❌ ngrok not found. Please install ngrok."
+    exit 1
+fi
+
 # Function to check if port is in use
 check_port() {
     if lsof -Pi :$1 -sTCP:LISTEN -t >/dev/null ; then
@@ -90,8 +96,89 @@ for i in {1..15}; do
     fi
 done
 
+# Start ngrok tunnels
+echo -e "\n${BLUE}3. Starting ngrok tunnels...${NC}"
+ngrok http 5001 > logs/ngrok_5001.log 2>&1 &
+NGROK_5001_PID=$!
+ngrok http 5002 > logs/ngrok_5002.log 2>&1 &
+NGROK_5002_PID=$!
+echo "  ✅ ngrok tunnels started (PIDs: $NGROK_5001_PID, $NGROK_5002_PID)"
+sleep 5 # Wait for ngrok to start and tunnels to be established
+
+# Get ngrok URLs (need to check which tunnel points to which port)
+echo "  ⏳ Fetching ngrok URLs..."
+
+# Check port 4040 tunnel
+NGROK_4040_TARGET=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].config.addr')
+NGROK_4040_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+
+# Check port 4041 tunnel
+NGROK_4041_TARGET=$(curl -s http://localhost:4041/api/tunnels | jq -r '.tunnels[0].config.addr')
+NGROK_4041_URL=$(curl -s http://localhost:4041/api/tunnels | jq -r '.tunnels[0].public_url')
+
+# Map URLs to correct services based on target ports
+if [[ "$NGROK_4040_TARGET" == "http://localhost:5001" ]]; then
+    NGROK_API_URL_5001="$NGROK_4040_URL"
+else
+    NGROK_API_URL_5001="$NGROK_4041_URL"
+fi
+
+if [[ "$NGROK_4040_TARGET" == "http://localhost:5002" ]]; then
+    NGROK_API_URL_5002="$NGROK_4040_URL"
+else
+    NGROK_API_URL_5002="$NGROK_4041_URL"
+fi
+
+if [ -z "$NGROK_API_URL_5001" ] || [ -z "$NGROK_API_URL_5002" ]; then
+    echo "  ❌ Failed to get ngrok URLs. Please check logs/ngrok_5001.log and logs/ngrok_5002.log"
+    exit 1
+fi
+
+echo "  ✅ ngrok URLs fetched successfully!"
+
+# Update configuration files with ngrok URLs
+echo "  🔄 Updating configuration files with ngrok URLs..."
+
+# Update .env.local
+if [ -f ".env.local" ]; then
+    # Backup original file
+    cp .env.local .env.local.backup
+    
+    # Update the URLs
+    sed -i '' "s|NEXT_PUBLIC_SSE_URL=http://localhost:5002/events|NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events|g" .env.local
+    sed -i '' "s|NEXT_PUBLIC_RAG_API_URL=http://localhost:5001|NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001|g" .env.local
+    sed -i '' "s|NEXT_PUBLIC_API_URL=http://localhost:5002|NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002|g" .env.local
+    
+    echo "    ✅ Updated .env.local"
+    echo "      • RAG API: $NGROK_API_URL_5001"
+    echo "      • SSE Server: $NGROK_API_URL_5002/events"
+else
+    echo "    ⚠️  .env.local not found - creating it..."
+    cat > .env.local << EOF
+NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events
+NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001
+NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002
+NEXT_PUBLIC_TAVUS_API_KEY=eb513dc5bc324cba8fe2210653b512ce
+NEXT_PUBLIC_TAVUS_REPLICA_ID=r92debe21318
+NEXT_PUBLIC_TAVUS_PERSONA_ID=p8ea2e6b8a04
+EOF
+    echo "    ✅ Created .env.local with ngrok URLs"
+fi
+
+# Also update frontend fallback URLs if they exist
+if [ -f "frontend/app/page.tsx" ]; then
+    # Backup original file
+    cp frontend/app/page.tsx frontend/app/page.tsx.backup
+    
+    # Update fallback URLs in the TypeScript file
+    sed -i '' "s|'http://localhost:5002/events'|'$NGROK_API_URL_5002/events'|g" frontend/app/page.tsx
+    sed -i '' "s|'http://localhost:5002'|'$NGROK_API_URL_5002'|g" frontend/app/page.tsx
+    
+    echo "    ✅ Updated frontend/app/page.tsx fallback URLs"
+fi
+
 # Start Frontend
-echo -e "\n${BLUE}3. Starting Frontend (Port 3000)...${NC}"
+echo -e "\n${BLUE}4. Starting Frontend (Port 3000)...${NC}"
 cd frontend
 npm run dev > ../logs/frontend.log 2>&1 &
 FRONTEND_PID=$!
@@ -112,24 +199,33 @@ for i in {1..30}; do
 done
 
 # Summary
-echo -e "\n${GREEN}===================================="
+echo -e "\n${GREEN}====================================\n"
 echo "✅ All Services Started Successfully!"
-echo "====================================${NC}"
+echo -e "\n====================================${NC}"
 echo ""
 echo "📍 Services:"
-echo "  • RAG API:      http://localhost:5001"
-echo "  • SSE Server:   http://localhost:5002"
+echo "  • RAG API:      http://localhost:5001 -> $NGROK_API_URL_5001"
+echo "  • SSE Server:   http://localhost:5002 -> $NGROK_API_URL_5002"
 echo "  • Frontend:     http://localhost:3000"
+echo ""
+echo "🔄 Configuration Files Updated:"
+echo "  • .env.local - Updated with ngrok URLs"
+echo "  • frontend/app/page.tsx - Updated fallback URLs"
+echo "  • Backup files created with .backup extension"
 echo ""
 echo "📊 Process IDs:"
 echo "  • RAG API:      $RAG_PID"
 echo "  • SSE Server:   $SSE_PID"
 echo "  • Frontend:     $FRONTEND_PID"
+echo "  • ngrok (5001): $NGROK_5001_PID"
+echo "  • ngrok (5002): $NGROK_5002_PID"
 echo ""
 echo "📝 Logs:"
 echo "  • RAG API:      logs/rag_api.log"
 echo "  • SSE Server:   logs/sse_server.log"
 echo "  • Frontend:     logs/frontend.log"
+echo "  • ngrok (5001): logs/ngrok_5001.log"
+echo "  • ngrok (5002): logs/ngrok_5002.log"
 echo ""
 echo "🛑 To stop all services:"
 echo "  ./stop_all_services.sh"
