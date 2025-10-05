@@ -125,12 +125,13 @@ def tavus_webhook():
 @sse_app.route('/api/tavus-tool-call', methods=['POST'])
 def tavus_tool_call_endpoint():
     """Handle tool calls - does the actual work"""
+    print("\n" + "=" * 80)
+    print("🔧 TOOL CALL ENDPOINT HIT!")
+    print("=" * 80)
     try:
         payload = request.json
-        print("=" * 80)
-        print("🔧 TOOL CALL ENDPOINT RECEIVED")
-        print("=" * 80)
-        print(f"📨 Payload: {json.dumps(payload, indent=2)}")
+        print("📨 Raw payload received:")
+        print(json.dumps(payload, indent=2))
         print("=" * 80)
         
         # Handle different payload formats
@@ -144,12 +145,26 @@ def tavus_tool_call_endpoint():
             # Direct frontend call format
             tool_name = payload.get('tool_name')
             tool_params = payload.get('tool_params', {})
-            connection_id = payload.get('connection_id')
+            connection_id = payload.get('connection_id') or payload.get('conversation_id')
+            
+            print(f"🔍 Parsed frontend format:")
+            print(f"   Tool name: {tool_name}")
+            print(f"   Tool params: {tool_params}")
+            print(f"   Tool params type: {type(tool_params)}")
+            print(f"   Connection ID: {connection_id}")
         else:
-            return jsonify({"error": "Invalid payload format"}), 400
+            print(f"❌ Invalid payload - missing required fields")
+            print(f"   Has 'type': {payload.get('type')}")
+            print(f"   Has 'tool_name': {payload.get('tool_name')}")
+            return jsonify({"error": "Invalid payload format - missing 'type' or 'tool_name'"}), 400
         
         # Do the actual tool call work
         if tool_name == 'fetch_relevant_image':
+            # Validate tool_params
+            if not tool_params or not isinstance(tool_params, dict):
+                print(f"❌ ERROR: tool_params is invalid: {tool_params} (type: {type(tool_params)})")
+                return jsonify({"tool_output": {"status": "error", "message": "tool_params must be a valid object/dict"}}), 400
+            
             query = tool_params.get('query')
             top_k = tool_params.get('top_k', 5)
 

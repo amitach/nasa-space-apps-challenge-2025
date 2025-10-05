@@ -32,7 +32,7 @@ export class TavusClient {
     this.apiKey = config.apiKey;
     this.personaId = config.personaId;
     this.replicaId = config.replicaId;
-this.callbackUrl = config.callbackUrl || 'https://consulting-converter-insertion-maui.trycloudflare.com/api/tavus-webhook';
+    this.callbackUrl = config.callbackUrl || 'http://localhost:5002/api/tavus-webhook';
   }
 
   setSSEConnectionId(connectionId: string) {
@@ -170,8 +170,8 @@ this.callbackUrl = config.callbackUrl || 'https://consulting-converter-insertion
         const requestBody = {
           persona_id: this.personaId,
           replica_id: this.replicaId,
-          custom_greeting: customGreeting || 'Hello! I\'m your ISS guide. Ask me anything about the International Space Station, and I can show you images too!',
-          conversational_context: 'You are an expert guide for the International Space Station. You can show users images of different parts of the ISS, astronauts, and space activities. When users ask about visual aspects or want to see something, use the fetch_relevant_image tool to show them relevant images.',
+          custom_greeting: customGreeting || 'Hello! I\'m your ISS guide. Ask me anything about the International Space Station!',
+          conversational_context: 'You are an expert guide for the International Space Station. You have access to a tool called fetch_relevant_image that can show users images of ISS modules, astronauts, and space activities. ONLY use this tool when the user explicitly asks to see images or photos of something specific. Do not use the tool unless the user requests visual content.',
           callback_url: this.callbackUrl, // General webhook endpoint
           properties: {
             max_call_duration: 3600,

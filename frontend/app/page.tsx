@@ -40,14 +40,20 @@ export default function HomeCorrected() {
   const [tavusClient, setTavusClient] = useState<TavusClient | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Image fetching state
+  const [isFetchingImages, setIsFetchingImages] = useState(false);
+  const [lastFetchQuery, setLastFetchQuery] = useState<string>('');
+  const [fetchTimestamp, setFetchTimestamp] = useState<Date | null>(null);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
 
   // Environment variables
   const TAVUS_API_KEY = process.env.NEXT_PUBLIC_TAVUS_API_KEY || '';
   const TAVUS_PERSONA_ID = process.env.NEXT_PUBLIC_TAVUS_PERSONA_ID || '';
   const TAVUS_REPLICA_ID = process.env.NEXT_PUBLIC_TAVUS_REPLICA_ID || '';
-  const TAVUS_CALLBACK_URL = process.env.NEXT_PUBLIC_TAVUS_CALLBACK_URL || 'https://consulting-converter-insertion-maui.trycloudflare.com/api/tavus-webhook';
-  const SSE_SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL || 'https://cbf4f5efb944.ngrok-free.app/events';
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://cbf4f5efb944.ngrok-free.app';
+  const TAVUS_CALLBACK_URL = process.env.NEXT_PUBLIC_TAVUS_CALLBACK_URL || 'http://localhost:5002/api/tavus-webhook';
+  const SSE_SERVER_URL = process.env.NEXT_PUBLIC_SSE_URL || 'http://localhost:5002/events';
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
 
   // SSE connection
   const { connected: sseIsConnected, images: sseImages, lastQuery } = useSSE(SSE_SERVER_URL);
@@ -86,53 +92,102 @@ export default function HomeCorrected() {
   }, [sseIsConnected]);
 
   // Clear images when conversation ends (but not for test calls)
+  // FIXED: Added a flag to prevent clearing during initial renders and only clear on actual disconnect
+  const previousTavusConnectedRef = useRef(tavusConnected);
+  
+  // Track conversation state changes for debugging
   useEffect(() => {
-    if (!tavusConnected && currentImages.length > 0) {
+    console.log('🔄 TAVUS CONNECTION STATE CHANGE:', {
+      connected: tavusConnected,
+      hasConversation: !!tavusConversation,
+      conversationId: tavusConversation?.conversation_id,
+      timestamp: new Date().toISOString()
+    });
+  }, [tavusConnected, tavusConversation]);
+  
+  useEffect(() => {
+    // Only clear images if we were connected and now we're not (actual disconnect)
+    const wasConnected = previousTavusConnectedRef.current;
+    const isNowDisconnected = !tavusConnected;
+    
+    if (wasConnected && isNowDisconnected && currentImages.length > 0) {
       // Check if this is a test call by looking at the last query
       const isTestCall = lastQuery && lastQuery.includes('Cupola module');
       
       if (!isTestCall) {
-        console.log('🧹 Clearing images - conversation ended');
+        console.log('🧹 Clearing images - conversation actually ended');
+        console.log('🧹 Previous state: connected =', wasConnected, ', Current state: connected =', tavusConnected);
         setCurrentImages([]);
         setCurrentImageIndex(0);
       } else {
         console.log('🧪 Keeping images - test call detected');
       }
     }
+    
+    // Update the ref for next render
+    previousTavusConnectedRef.current = tavusConnected;
   }, [tavusConnected, currentImages.length, lastQuery]);
 
   // Handle SSE messages - show images when Tavus conversation is active OR when testing
+  // FIXED: Only trigger when sseImages actually changes, prevent redundant renders
+  const previousSseImagesRef = useRef<ImageResult[]>([]);
+  
   useEffect(() => {
-    console.log('🔍 SSE EFFECT TRIGGERED - sseImages:', sseImages);
+    // Only process if sseImages actually changed (by comparing length and first item)
+    const hasChanged = 
+      sseImages?.length !== previousSseImagesRef.current?.length ||
+      sseImages?.[0]?.nasa_id !== previousSseImagesRef.current?.[0]?.nasa_id;
+    
+    if (!hasChanged) {
+      console.log('⏭️ SSE images unchanged, skipping update');
+      return;
+    }
+    
+    console.log('🔍 SSE EFFECT TRIGGERED - sseImages changed');
     console.log('🔍 SSE EFFECT TRIGGERED - sseImages.length:', sseImages?.length);
     console.log('🔍 SSE EFFECT TRIGGERED - tavusConnected:', tavusConnected);
     
     if (sseImages && sseImages.length > 0) {
-      // For now, always show images from SSE (we'll add proper source checking later)
-      // TODO: Add proper source checking when we have access to the full SSE event data
       console.log('='.repeat(80));
       console.log('🎯 FRONTEND PROCESSING IMAGES FOR DISPLAY');
       console.log('='.repeat(80));
       console.log(`✅ Tavus connected: ${tavusConnected}`);
       console.log(`📸 Images received: ${sseImages.length}`);
-      console.log(`🔍 Query: "${sseImages[0]?.query || 'Unknown'}"`);
+      console.log(`🔍 Query: "${lastQuery || 'Unknown'}"`);
       console.log('🖼️ Setting images for display...');
-      console.log('🖼️ sseImages data:', sseImages);
+      
+      // Clear fetching state and show success
+      setIsFetchingImages(false);
+      setShowSuccessNotification(true);
+      
+      // Hide success notification after 3 seconds
+      setTimeout(() => {
+        setShowSuccessNotification(false);
+      }, 3000);
+      
       setCurrentImages(sseImages);
       setCurrentImageIndex(0);
       console.log(`✅ Successfully updated UI with ${sseImages.length} images`);
       console.log('='.repeat(80));
+      
+      // Update the ref
+      previousSseImagesRef.current = sseImages;
     } else {
       console.log('❌ No sseImages or empty array');
     }
-  }, [sseImages, tavusConnected]);
+  }, [sseImages, tavusConnected, lastQuery]);
 
   // Image slideshow
   useEffect(() => {
-    console.log('🖼️ SLIDESHOW EFFECT - currentImages:', currentImages);
-    console.log('🖼️ SLIDESHOW EFFECT - currentImages.length:', currentImages.length);
+    if (currentImages.length <= 1) {
+      // Only log if we have exactly 0 images (helpful for debugging)
+      if (currentImages.length === 0) {
+        console.log('🖼️ SLIDESHOW: No images to display');
+      }
+      return;
+    }
     
-    if (currentImages.length <= 1) return;
+    console.log('🖼️ SLIDESHOW: Starting slideshow with', currentImages.length, 'images');
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % currentImages.length);
@@ -206,6 +261,160 @@ export default function HomeCorrected() {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ query: 'International Space Station', top_k: 5 })
             });
+          }
+        });
+        
+        // Listen for when participants leave (including Tavus)
+        callFrame.on('participant-left', (event: any) => {
+          console.log('🚪 PARTICIPANT LEFT:', event);
+          if (event.participant?.user_name?.includes('Tavus') || event.participant?.user_id?.includes('tavus')) {
+            console.log('⚠️ Tavus participant left the call!');
+          }
+        });
+        
+        // Listen for call state changes
+        callFrame.on('left-meeting', (event: any) => {
+          console.log('🚪 LEFT MEETING:', event);
+          console.log('⚠️ User or system left the Daily.co meeting');
+          setTavusConnected(false);
+        });
+        
+        // Listen for errors
+        callFrame.on('error', (event: any) => {
+          console.error('❌ DAILY.CO ERROR:', event);
+        });
+        
+        // CRITICAL: Listen for Tavus tool calls via Daily.co app messages
+        callFrame.on('app-message', async (event: any) => {
+          console.log('📨 DAILY.CO APP MESSAGE RECEIVED:', event);
+          
+          try {
+            const message = event.data;
+            console.log('📋 Message data:', message);
+            
+            // Check if this is a tool call from Tavus
+            if (message.message_type === 'conversation' && message.event_type === 'conversation.tool_call') {
+              console.log('🔧 TAVUS TOOL CALL DETECTED!');
+              console.log('🔧 Tool call details:', message.properties);
+              console.log('🔧 Full message:', JSON.stringify(message, null, 2));
+              
+              const toolCall = message.properties;
+              
+              // Handle different possible structures for tool call data
+              const toolName = toolCall?.tool_name || toolCall?.name || toolCall?.function?.name;
+              
+              // Tavus sends 'arguments' as a JSON string that needs parsing!
+              let toolParams = toolCall?.tool_parameters || toolCall?.parameters || toolCall?.function?.parameters;
+              
+              // If arguments is a string, parse it
+              if (toolCall?.arguments && typeof toolCall.arguments === 'string') {
+                try {
+                  toolParams = JSON.parse(toolCall.arguments);
+                  console.log('✅ Parsed arguments from JSON string');
+                } catch (e) {
+                  console.error('❌ Failed to parse arguments:', e);
+                }
+              } else if (toolCall?.arguments && typeof toolCall.arguments === 'object') {
+                toolParams = toolCall.arguments;
+              }
+              
+              console.log('🔧 Extracted tool name:', toolName);
+              console.log('🔧 Extracted tool params:', toolParams);
+              
+              if (toolName === 'fetch_relevant_image') {
+                console.log('✅ Handling fetch_relevant_image tool call');
+                
+                // Set fetching state for UI feedback
+                setIsFetchingImages(true);
+                setLastFetchQuery(toolParams?.query || 'images');
+                setFetchTimestamp(new Date());
+                
+                // Set timeout to clear loading if stuck (30 seconds)
+                const timeoutId = setTimeout(() => {
+                  console.warn('⚠️ Image fetch timeout - clearing loading state');
+                  setIsFetchingImages(false);
+                  setError('Image fetch timed out. Please try again.');
+                }, 30000);
+                
+                try {
+                  console.log('📤 Sending tool call to backend:', {
+                    url: `${API_BASE_URL}/api/tavus-tool-call`,
+                    tool_name: toolName,
+                    query: toolParams?.query,
+                    conversation_id: message.conversation_id
+                  });
+                  
+                  // Call our tool call endpoint
+                  const response = await fetch(`${API_BASE_URL}/api/tavus-tool-call`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      tool_name: toolName,
+                      tool_params: toolParams,
+                      conversation_id: message.conversation_id,
+                      inference_id: message.properties?.inference_id
+                    })
+                  });
+                  
+                  console.log('📊 Backend response status:', response.status);
+                  
+                  if (!response.ok) {
+                    throw new Error(`Backend returned ${response.status}: ${response.statusText}`);
+                  }
+                  
+                  const result = await response.json();
+                  console.log('✅ Tool call result:', result);
+                  
+                  // Clear timeout since we got a response
+                  clearTimeout(timeoutId);
+                  
+                  // Send the result back to Tavus via app message
+                  if (result.tool_output) {
+                    await callFrame.sendAppMessage({
+                      message_type: 'conversation',
+                      event_type: 'conversation.tool_call_result',
+                      conversation_id: message.conversation_id,
+                      properties: {
+                        inference_id: message.properties.inference_id,
+                        tool_call_id: message.properties.tool_call_id,
+                        tool_output: result.tool_output
+                      }
+                    });
+                    console.log('✅ Tool result sent back to Tavus');
+                  }
+                  
+                } catch (toolError) {
+                  console.error('❌ Tool call execution failed:', toolError);
+                  
+                  // Clear timeout and fetching state on error
+                  clearTimeout(timeoutId);
+                  setIsFetchingImages(false);
+                  setError(`Failed to fetch images: ${toolError}`);
+                  
+                  // Send error back to Tavus
+                  await callFrame.sendAppMessage({
+                    message_type: 'conversation',
+                    event_type: 'conversation.tool_call_result',
+                    conversation_id: message.conversation_id,
+                    properties: {
+                      inference_id: message.properties.inference_id,
+                      tool_call_id: message.properties.tool_call_id,
+                      tool_output: {
+                        status: 'error',
+                        message: `Tool call failed: ${toolError}`
+                      }
+                    }
+                  });
+                }
+              } else {
+                console.warn('⚠️ Unknown tool call:', toolName);
+                console.warn('⚠️ Available tool call data:', toolCall);
+              }
+            } else {
+              console.log('📋 Non-tool-call app message:', message.event_type);
+            }
+          } catch (error) {
+            console.error('❌ Error handling app message:', error);
           }
         });
         
@@ -345,7 +554,29 @@ export default function HomeCorrected() {
         <div className={`px-4 py-2 rounded-lg ${currentImages.length > 0 ? 'bg-blue-600' : 'bg-gray-600'}`}>
           Images: {currentImages.length}
         </div>
+        {isFetchingImages && (
+          <div className="px-4 py-2 rounded-lg bg-yellow-600 animate-pulse flex items-center gap-2">
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Fetching: {lastFetchQuery}</span>
+          </div>
+        )}
       </div>
+      
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div className="fixed top-20 right-8 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3 animate-bounce z-50">
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <div>
+            <p className="font-semibold">✅ Images Loaded!</p>
+            <p className="text-sm">{currentImages.length} images for "{lastQuery}"</p>
+          </div>
+        </div>
+      )}
 
       {/* Error Display */}
       {error && (
@@ -427,7 +658,35 @@ export default function HomeCorrected() {
         {/* Image Display Section */}
         <div className="flex-1">
           <div className="bg-gray-800 rounded-lg p-6">
-            <h2 className="text-2xl font-semibold mb-4">ISS Images</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-semibold">ISS Images</h2>
+              {lastQuery && currentImages.length > 0 && (
+                <div className="text-sm text-gray-400">
+                  Query: <span className="text-blue-400 font-mono">"{lastQuery}"</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Loading State */}
+            {isFetchingImages && (
+              <div className="bg-yellow-900 bg-opacity-30 border-2 border-yellow-600 rounded-lg p-6 mb-4">
+                <div className="flex items-center gap-4">
+                  <svg className="animate-spin h-8 w-8 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <div>
+                    <p className="text-lg font-semibold text-yellow-400">🔍 Fetching Images...</p>
+                    <p className="text-sm text-gray-300">Searching for: <span className="font-mono text-yellow-300">"{lastFetchQuery}"</span></p>
+                    {fetchTimestamp && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Started: {fetchTimestamp.toLocaleTimeString()}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             
             {currentImages.length > 0 ? (
               <div className="space-y-4">

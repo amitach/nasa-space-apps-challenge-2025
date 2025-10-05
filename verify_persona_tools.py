@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv('.env.local')
 
 def verify_persona_tools():
     """Verify that the persona has the fetch_relevant_image tool configured"""

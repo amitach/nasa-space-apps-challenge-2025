@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+load_dotenv('frontend/.env.local')
 
 def update_persona_tools():
     """Update the Tavus persona with our fetch_relevant_image tool"""
@@ -39,7 +39,7 @@ def update_persona_tools():
                     "type": "function",
                     "function": {
                         "name": "fetch_relevant_image",
-                        "description": "Fetches relevant ISS images based on a search query. Use this when the user asks about specific parts of the ISS, astronauts, space activities, or wants to see images.",
+                        "description": "Fetches relevant ISS images based on a search query. CRITICAL: You MUST call this tool for EVERY unique image request, even if you've shown images before. Each new topic (Cupola, NBL, spacewalk, etc.) requires a separate tool call. Never describe images without calling this tool first.",
                         "parameters": {
                             "type": "object",
                             "properties": {

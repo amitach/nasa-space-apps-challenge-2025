@@ -13,7 +13,7 @@ load_dotenv('frontend/.env.local')
 
 TAVUS_API_KEY = os.getenv('NEXT_PUBLIC_TAVUS_API_KEY')
 TAVUS_PERSONA_ID = os.getenv('NEXT_PUBLIC_TAVUS_PERSONA_ID')
-NEW_TOOL_ENDPOINT = "https://consulting-converter-insertion-maui.trycloudflare.com/api/tavus-tool-call"
+NEW_TOOL_ENDPOINT = os.getenv('NEXT_PUBLIC_WEBHOOK_URL', 'http://localhost:5002/api/tavus-tool-call')
 
 def get_tavus_tools():
     """Get the tool configuration for Tavus"""

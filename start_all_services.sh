@@ -139,21 +139,46 @@ echo "  ✅ ngrok URLs fetched successfully!"
 # Update configuration files with ngrok URLs
 echo "  🔄 Updating configuration files with ngrok URLs..."
 
-# Update .env.local
-if [ -f ".env.local" ]; then
+# Update frontend/.env.local (this is where Next.js looks for env vars)
+if [ -f "frontend/.env.local" ]; then
     # Backup original file
-    cp .env.local .env.local.backup
+    cp frontend/.env.local frontend/.env.local.backup
     
-    # Update the URLs
-    sed -i '' "s|NEXT_PUBLIC_SSE_URL=http://localhost:5002/events|NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events|g" .env.local
-    sed -i '' "s|NEXT_PUBLIC_RAG_API_URL=http://localhost:5001|NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001|g" .env.local
-    sed -i '' "s|NEXT_PUBLIC_API_URL=http://localhost:5002|NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002|g" .env.local
+    # Update the URLs - SSE must use localhost (ngrok blocks EventSource)
+    sed -i '' "s|NEXT_PUBLIC_SSE_URL=.*|NEXT_PUBLIC_SSE_URL=http://localhost:5002/events|g" frontend/.env.local
+    sed -i '' "s|NEXT_PUBLIC_RAG_API_URL=.*|NEXT_PUBLIC_RAG_API_URL=http://localhost:5001|g" frontend/.env.local
+    sed -i '' "s|NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=http://localhost:5002|g" frontend/.env.local
+    sed -i '' "s|NEXT_PUBLIC_TAVUS_CALLBACK_URL=.*|NEXT_PUBLIC_TAVUS_CALLBACK_URL=$NGROK_API_URL_5002/api/tavus-webhook|g" frontend/.env.local
+    sed -i '' "s|NEXT_PUBLIC_WEBHOOK_URL=.*|NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook|g" frontend/.env.local
     
-    echo "    ✅ Updated .env.local"
-    echo "      • RAG API: $NGROK_API_URL_5001"
-    echo "      • SSE Server: $NGROK_API_URL_5002/events"
+    echo "    ✅ Updated frontend/.env.local"
+    echo "      • RAG API: http://localhost:5001"
+    echo "      • SSE Server: http://localhost:5002/events (localhost - ngrok blocks SSE)"
+    echo "      • Webhook URL: $NGROK_API_URL_5002/api/tavus-webhook (ngrok - for Tavus callbacks)"
 else
-    echo "    ⚠️  .env.local not found - creating it..."
+    echo "    ⚠️  frontend/.env.local not found - creating it..."
+    cat > frontend/.env.local << EOF
+NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events
+NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001
+NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002
+NEXT_PUBLIC_TAVUS_API_KEY=eb513dc5bc324cba8fe2210653b512ce
+NEXT_PUBLIC_TAVUS_REPLICA_ID=r92debe21318
+NEXT_PUBLIC_TAVUS_PERSONA_ID=p8ea2e6b8a04
+NEXT_PUBLIC_TAVUS_CALLBACK_URL=$NGROK_API_URL_5002/api/tavus-webhook
+NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook
+EOF
+    echo "    ✅ Created frontend/.env.local with ngrok URLs"
+fi
+
+# Also update project root .env.local for Python scripts
+if [ -f ".env.local" ]; then
+    cp .env.local .env.local.backup
+    sed -i '' "s|NEXT_PUBLIC_SSE_URL=.*|NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events|g" .env.local
+    sed -i '' "s|NEXT_PUBLIC_RAG_API_URL=.*|NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001|g" .env.local
+    sed -i '' "s|NEXT_PUBLIC_API_URL=.*|NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002|g" .env.local
+    sed -i '' "s|NEXT_PUBLIC_WEBHOOK_URL=.*|NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook|g" .env.local
+    echo "    ✅ Updated project root .env.local for Python scripts"
+else
     cat > .env.local << EOF
 NEXT_PUBLIC_SSE_URL=$NGROK_API_URL_5002/events
 NEXT_PUBLIC_RAG_API_URL=$NGROK_API_URL_5001
@@ -161,20 +186,9 @@ NEXT_PUBLIC_API_URL=$NGROK_API_URL_5002
 NEXT_PUBLIC_TAVUS_API_KEY=eb513dc5bc324cba8fe2210653b512ce
 NEXT_PUBLIC_TAVUS_REPLICA_ID=r92debe21318
 NEXT_PUBLIC_TAVUS_PERSONA_ID=p8ea2e6b8a04
+NEXT_PUBLIC_WEBHOOK_URL=$NGROK_API_URL_5002/api/tavus-webhook
 EOF
-    echo "    ✅ Created .env.local with ngrok URLs"
-fi
-
-# Also update frontend fallback URLs if they exist
-if [ -f "frontend/app/page.tsx" ]; then
-    # Backup original file
-    cp frontend/app/page.tsx frontend/app/page.tsx.backup
-    
-    # Update fallback URLs in the TypeScript file
-    sed -i '' "s|'http://localhost:5002/events'|'$NGROK_API_URL_5002/events'|g" frontend/app/page.tsx
-    sed -i '' "s|'http://localhost:5002'|'$NGROK_API_URL_5002'|g" frontend/app/page.tsx
-    
-    echo "    ✅ Updated frontend/app/page.tsx fallback URLs"
+    echo "    ✅ Created project root .env.local"
 fi
 
 # Start Frontend
@@ -209,8 +223,9 @@ echo "  • SSE Server:   http://localhost:5002 -> $NGROK_API_URL_5002"
 echo "  • Frontend:     http://localhost:3000"
 echo ""
 echo "🔄 Configuration Files Updated:"
-echo "  • .env.local - Updated with ngrok URLs"
-echo "  • frontend/app/page.tsx - Updated fallback URLs"
+echo "  • frontend/.env.local - Updated with ngrok URLs (Next.js uses this)"
+echo "  • .env.local - Updated for Python scripts"
+echo "  • Webhook URL: $NGROK_API_URL_5002/api/tavus-webhook"
 echo "  • Backup files created with .backup extension"
 echo ""
 echo "📊 Process IDs:"

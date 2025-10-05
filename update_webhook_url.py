@@ -16,7 +16,7 @@ def update_webhook_url():
     
     api_key = os.getenv('NEXT_PUBLIC_TAVUS_API_KEY')
     persona_id = os.getenv('NEXT_PUBLIC_TAVUS_PERSONA_ID')
-public_webhook_url = "https://consulting-converter-insertion-maui.trycloudflare.com/api/tavus-webhook"
+    public_webhook_url = os.getenv('NEXT_PUBLIC_WEBHOOK_URL', 'http://localhost:5002/api/tavus-webhook')
     
     if not api_key or not persona_id:
         print("❌ Missing TAVUS_API_KEY or TAVUS_PERSONA_ID in environment variables")
