@@ -99,6 +99,49 @@ MAX_TOP_K = 20
 MODEL_NAME = 'all-MiniLM-L6-v2'
 ```
 
+## 📊 Dataset Information
+
+### Current Image Database
+
+**⚠️ IMPORTANT: Limited Dataset**
+
+The current database contains **only 40 curated ISS images**:
+- **30 Cupola images** - Views from the ISS Cupola observation module
+- **10 NBL training images** - Neutral Buoyancy Laboratory training sessions
+
+### Available Search Queries
+
+**✅ Queries that WILL work** (with number of matching images):
+```
+'cupola'        → 28 images
+'ISS'           → 39 images
+'expedition'    → 27 images
+'spacewalk'     → 11 images
+'NBL'           → 10 images
+'training'      → 10 images
+'space shuttle' → 11 images
+'crew'          → 10 images
+'module'        → 8 images
+'Canadarm'      → 6 images
+```
+
+**❌ Queries that WON'T work well**:
+- Generic queries like "space", "astronaut", "Earth view"
+- Topics not related to Cupola or NBL
+- Specific mission numbers or dates outside the curated set
+
+### Expanding the Dataset
+
+To add more images:
+1. Use `src/utils/download_images.py` to fetch from NASA API
+2. Update `src/data/iss_images_organized.json`
+3. Restart the search engine to rebuild the FAISS index
+
+**Example:**
+```bash
+python src/utils/download_images.py --query "ISS exterior" --count 50
+```
+
 ## 📚 API Endpoints
 
 ### Search Images

@@ -1,0 +1,9 @@
+authtoken: <YOUR_AUTHTOKEN>
+version: "2"
+tunnels:
+  rag-api:
+    proto: http
+    addr: 5001
+  sse-server:
+    proto: http
+    addr: 5002

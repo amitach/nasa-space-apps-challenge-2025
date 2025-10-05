@@ -64,3 +64,19 @@ Our take on the challenge:
 - At base-level, the Tavus avatar has enough knowledge on how to answer relevant questions about the Cupola and the NBL. So, it's like a proxy-astronaut that users can talk to and have their queries answered.
 - Ideally: We should be able to pull in relevant data like images as the avatar speaks about the topic or answers user questions. This either needs to be integrated tightly with Tavus or it needs to be wired separately with a parallel API call that sends the relevant text as a query and runs a semantic search on the images and shows in a separate section.
 
+Phase 1: Core MVP (Essential APIs)
+    Replicas API - Create astronaut replica
+    Personas API - Define astronaut personality
+    Conversations API - Enable video conversations
+    Documents API - Upload NASA content
+
+Phase 2: Enhanced Features (High-impact APIs)
+    Knowledge Base API - Organize content
+    Tools API - Connect to NASA APIs
+    Guardrails API - Ensure educational focus
+    Objectives API - Guide conversation flow
+
+Phase 3: Advanced Features (Nice-to-have APIs)
+    Analytics API - Track engagement
+    Video API - Generate educational content
+    Webhooks API - Real-time updates

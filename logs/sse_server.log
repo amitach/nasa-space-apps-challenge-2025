@@ -1,0 +1,46 @@
+2025-10-04 21:55:45,547 - src.search.engine - INFO - Loaded 40 images
+2025-10-04 21:55:45,547 - src.search.engine - INFO - Initializing SentenceTransformer model...
+2025-10-04 21:55:45,547 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-10-04 21:55:46,727 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: mps
+2025-10-04 21:55:46,813 - src.search.engine - INFO - SentenceTransformer model loaded.
+2025-10-04 21:55:46,813 - src.search.engine - INFO - Generating embeddings...
+Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches: 100%|██████████| 2/2 [00:00<00:00, 16.96it/s]Batches: 100%|██████████| 2/2 [00:00<00:00, 16.94it/s]
+2025-10-04 21:55:46,933 - src.search.engine - INFO - Built FAISS index with 40 vectors
+2025-10-04 21:55:46,933 - src.search.engine - INFO - Search engine initialized successfully
+2025-10-04 21:55:46,933 - __main__ - INFO - SSE search engine initialized successfully
+2025-10-04 21:55:46,934 - __main__ - INFO - Starting SSE Server on port 5002...
+ * Serving Flask app 'sse_server'
+ * Debug mode: on
+2025-10-04 21:55:46,948 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://10.0.0.109:5002
+2025-10-04 21:55:46,948 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-10-04 21:55:46,949 - werkzeug - INFO -  * Restarting with stat
+2025-10-04 21:55:48,737 - src.search.engine - INFO - Loaded 40 images
+2025-10-04 21:55:48,737 - src.search.engine - INFO - Initializing SentenceTransformer model...
+2025-10-04 21:55:48,737 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-10-04 21:55:49,877 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: mps
+2025-10-04 21:55:49,968 - src.search.engine - INFO - SentenceTransformer model loaded.
+2025-10-04 21:55:49,968 - src.search.engine - INFO - Generating embeddings...
+Batches:   0%|          | 0/2 [00:00<?, ?it/s]Batches: 100%|██████████| 2/2 [00:00<00:00, 17.21it/s]Batches: 100%|██████████| 2/2 [00:00<00:00, 17.20it/s]
+2025-10-04 21:55:50,086 - src.search.engine - INFO - Built FAISS index with 40 vectors
+2025-10-04 21:55:50,086 - src.search.engine - INFO - Search engine initialized successfully
+2025-10-04 21:55:50,086 - __main__ - INFO - SSE search engine initialized successfully
+2025-10-04 21:55:50,087 - __main__ - INFO - Starting SSE Server on port 5002...
+2025-10-04 21:55:50,101 - werkzeug - WARNING -  * Debugger is active!
+huggingface/tokenizers: The current process just got forked, after parallelism has already been used. Disabling parallelism to avoid deadlocks...
+To disable this warning, you can either:
+	- Avoid using `tokenizers` before the fork if possible
+	- Explicitly set the environment variable TOKENIZERS_PARALLELISM=(true | false)
+2025-10-04 21:55:50,111 - werkzeug - INFO -  * Debugger PIN: 900-486-820
+2025-10-04 21:55:50,120 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:55:50] "[33mGET /health HTTP/1.1[0m" 404 -
+2025-10-04 21:55:57,119 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:55:57] "OPTIONS /api/test-sse HTTP/1.1" 200 -
+2025-10-04 21:55:57,123 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:55:57] "POST /api/test-sse HTTP/1.1" 200 -
+2025-10-04 21:55:57,882 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:55:57] "POST /api/test-sse HTTP/1.1" 200 -
+2025-10-04 21:55:59,249 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:55:59] "GET /events?connection_id=conn_1759629359240_8t82g8jg5 HTTP/1.1" 200 -
+2025-10-04 21:56:09,921 - werkzeug - INFO - 127.0.0.1 - - [04/Oct/2025 21:56:09] "GET /events?connection_id=conn_1759629369917_gpnclwna9 HTTP/1.1" 200 -
+/Users/amit/.pyenv/versions/3.10.14/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 2 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '
+/Users/amit/.pyenv/versions/3.10.14/lib/python3.10/multiprocessing/resource_tracker.py:224: UserWarning: resource_tracker: There appear to be 2 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

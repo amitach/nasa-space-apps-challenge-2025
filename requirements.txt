@@ -2,13 +2,14 @@
 
 # Core API Framework
 flask==2.3.3
+flask-cors==4.0.0
 gunicorn==21.2.0
 
 # Machine Learning & Vector Search
 faiss-cpu==1.7.4
 sentence-transformers==2.7.0
 numpy==1.24.3
-torch==2.0.1
+torch>=2.1.0
 
 # HTTP Requests
 requests==2.31.0

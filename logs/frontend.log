@@ -1,0 +1,285 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/amit/github/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/amit/github/nasa-space-apps-challenge-2025/frontend/package-lock.json
+
+   ▲ Next.js 15.5.4
+   - Local:        http://localhost:3000
+   - Network:      http://10.0.0.109:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1177ms
+ ○ Compiling / ...
+ ✓ Compiled / in 512ms (561 modules)
+ GET / 200 in 711ms
+ GET / 200 in 83ms
+ ✓ Compiled /favicon.ico in 176ms (354 modules)
+ GET /favicon.ico 200 in 251ms
+ ✓ Compiled in 464ms (592 modules)
+ GET / 200 in 76ms
+ GET / 200 in 117ms
+ GET /favicon.ico 200 in 44ms
+ GET / 200 in 87ms
+ ✓ Compiled in 147ms (592 modules)
+ GET / 200 in 85ms
+ ✓ Compiled in 207ms (575 modules)
+ GET / 200 in 114ms
+ ✓ Compiled in 184ms (575 modules)
+ GET / 200 in 54ms
+ ✓ Compiled in 150ms (575 modules)
+ GET / 200 in 42ms
+ ✓ Compiled in 141ms (575 modules)
+ GET / 200 in 52ms
+ ✓ Compiled in 94ms (575 modules)
+ GET / 200 in 39ms
+ ✓ Compiled in 446ms (575 modules)
+ GET / 200 in 37ms
+ ✓ Compiled in 144ms (575 modules)
+ GET / 200 in 38ms
+ GET / 200 in 195ms
+ ✓ Compiled in 134ms (575 modules)
+ GET / 200 in 71ms
+ GET / 200 in 85ms
+ ✓ Compiled /favicon.ico in 182ms (354 modules)
+ GET /favicon.ico 200 in 243ms
+ ✓ Compiled in 183ms (592 modules)
+ GET / 200 in 71ms
+ ✓ Compiled in 166ms (592 modules)
+ GET / 200 in 54ms
+ ✓ Compiled in 227ms (592 modules)
+ GET / 200 in 30ms
+ GET / 200 in 90ms
+ GET /favicon.ico 200 in 16ms
+ ✓ Compiled in 128ms (238 modules)
+ GET / 200 in 38ms
+ ✓ Compiled in 214ms (575 modules)
+ GET / 200 in 104ms
+ ✓ Compiled in 189ms (575 modules)
+ GET / 200 in 54ms
+ ✓ Compiled in 97ms (575 modules)
+ GET / 200 in 36ms
+ GET / 200 in 215ms
+ ✓ Compiled in 93ms (575 modules)
+ GET / 200 in 69ms
+ ✓ Compiled in 75ms (575 modules)
+ GET / 200 in 77ms
+ ✓ Compiled in 117ms (238 modules)
+ GET / 200 in 13ms
+ ✓ Compiled /favicon.ico in 82ms (354 modules)
+ GET /favicon.ico 200 in 134ms
+ GET /favicon.ico 200 in 3ms
+ ✓ Compiled in 474ms (575 modules)
+ GET / 200 in 159ms
+ ✓ Compiled in 435ms (575 modules)
+ GET / 200 in 80ms
+ ✓ Compiled in 108ms (575 modules)
+ GET / 200 in 64ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/3.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/3.pack.gz'
+   Reload env: .env.local
+ ✓ Compiled in 278ms (561 modules)
+ GET / 200 in 79ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/3.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/3.pack.gz'
+ ✓ Compiled in 246ms (575 modules)
+ GET / 200 in 96ms
+ ✓ Compiled in 144ms (575 modules)
+ GET / 200 in 46ms
+ ✓ Compiled in 390ms (575 modules)
+ GET / 200 in 57ms
+ ✓ Compiled in 139ms (575 modules)
+ GET / 200 in 68ms
+ ✓ Compiled in 218ms (575 modules)
+ GET / 200 in 63ms
+ ✓ Compiled in 117ms (575 modules)
+ GET / 200 in 58ms
+ ✓ Compiled in 192ms (575 modules)
+ ⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>) {
+  page: '/'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1038ms (901 modules)
+ GET / 500 in 1435ms
+ GET / 200 in 49ms
+ GET / 200 in 8ms
+ GET / 200 in 70ms
+ ✓ Compiled in 555ms (915 modules)
+ GET / 200 in 94ms
+ ✓ Compiled in 270ms (915 modules)
+ GET / 200 in 104ms
+ ✓ Compiled in 169ms (915 modules)
+ GET / 200 in 72ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/2.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/2.pack.gz'
+ ✓ Compiled in 165ms (822 modules)
+ GET / 200 in 355ms
+ ✓ Compiled in 269ms (822 modules)
+ GET / 200 in 78ms
+ ✓ Compiled in 231ms (822 modules)
+ GET / 200 in 110ms
+ ✓ Compiled in 199ms (822 modules)
+ GET / 200 in 51ms
+ ✓ Compiled in 191ms (822 modules)
+ GET / 200 in 63ms
+ ✓ Compiled in 140ms (822 modules)
+ GET / 200 in 89ms
+ ✓ Compiled in 230ms (822 modules)
+ GET / 200 in 63ms
+ ✓ Compiled in 250ms (822 modules)
+ GET / 200 in 195ms
+ ✓ Compiled in 373ms (822 modules)
+ GET / 200 in 63ms
+ ✓ Compiled in 161ms (822 modules)
+ GET / 200 in 45ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/1.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/1.pack.gz'
+ ✓ Compiled in 247ms (822 modules)
+ GET / 200 in 72ms
+ ✓ Compiled in 157ms (822 modules)
+ GET / 200 in 40ms
+ ✓ Compiled in 249ms (822 modules)
+ GET / 200 in 99ms
+ ✓ Compiled in 235ms (822 modules)
+ GET / 200 in 61ms
+ ✓ Compiled in 183ms (822 modules)
+ GET / 200 in 53ms
+ ✓ Compiled in 584ms (822 modules)
+ GET / 200 in 128ms
+ ✓ Compiled in 133ms (822 modules)
+ GET / 200 in 62ms
+ ✓ Compiled in 341ms (822 modules)
+ GET / 200 in 123ms
+ ✓ Compiled in 176ms (822 modules)
+ GET / 200 in 55ms
+ ✓ Compiled in 145ms (822 modules)
+ GET / 200 in 44ms
+ ✓ Compiled in 152ms (822 modules)
+ ⨯ SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>) {
+  page: '/'
+}
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 580ms (901 modules)
+ GET / 500 in 919ms
+ GET / 200 in 124ms
+ ✓ Compiled in 265ms (915 modules)
+ GET / 200 in 86ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 259ms (822 modules)
+ GET / 200 in 182ms
+ ✓ Compiled in 167ms (822 modules)
+ ⨯ SyntaxError: Invalid or unexpected token
+    at <unknown> (webpack-internal://nextjs/webpack-runtime.js:1)
+    at <unknown> (.next/server/app/page.js:299:27)
+    at Object.<anonymous> (.next/server/app/page.js:305:3) {
+  page: '/'
+}
+ ✓ Compiled /_error in 130ms (901 modules)
+ GET / 500 in 581ms
+ GET / 200 in 128ms
+ ✓ Compiled in 264ms (915 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET / 200 in 46ms
+ GET / 200 in 107ms
+ ✓ Compiled /favicon.ico in 132ms (542 modules)
+ GET /favicon.ico 200 in 196ms
+ ✓ Compiled in 455ms (822 modules)
+ GET / 200 in 251ms
+ ✓ Compiled in 141ms (822 modules)
+ GET / 200 in 79ms
+ ✓ Compiled in 136ms (822 modules)
+ GET / 200 in 85ms
+ ✓ Compiled in 218ms (822 modules)
+ GET / 200 in 49ms
+ ✓ Compiled in 227ms (822 modules)
+ GET / 200 in 92ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/3.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/3.pack.gz'
+ ✓ Compiled in 158ms (822 modules)
+ GET / 200 in 110ms
+ ✓ Compiled in 300ms (822 modules)
+ GET / 200 in 107ms
+ ✓ Compiled in 117ms (822 modules)
+ GET / 200 in 45ms
+ ✓ Compiled in 238ms (822 modules)
+ GET / 200 in 35ms
+ ✓ Compiled in 316ms (822 modules)
+ GET / 200 in 102ms
+ ✓ Compiled in 96ms (822 modules)
+ GET / 200 in 44ms
+ ✓ Compiled in 126ms (822 modules)
+ GET / 200 in 76ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 409ms (822 modules)
+ GET / 200 in 95ms
+ ✓ Compiled in 272ms (822 modules)
+ GET / 200 in 92ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/0.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/0.pack.gz'
+   Reload env: .env.local
+ ✓ Compiled in 286ms (808 modules)
+ GET / 200 in 172ms
+ ✓ Compiled in 76ms (808 modules)
+ GET / 200 in 37ms
+ ✓ Compiled in 260ms (822 modules)
+ GET / 200 in 84ms
+ ✓ Compiled in 118ms (822 modules)
+ GET / 200 in 35ms
+ ✓ Compiled in 84ms (822 modules)
+ GET / 200 in 30ms
+ ✓ Compiled in 207ms (822 modules)
+ GET / 200 in 64ms
+ ✓ Compiled in 105ms (822 modules)
+ GET / 200 in 33ms
+ ✓ Compiled in 98ms (822 modules)
+ GET / 200 in 41ms
+ ⨯ ./lib/tavus-corrected.ts
+Error:   [31mx[0m Unterminated string constant
+     ,-[[36;1;4m/Users/amit/github/nasa-space-apps-challenge-2025/frontend/lib/tavus-corrected.ts[0m:126:1]
+ [2m123[0m |    */
+ [2m124[0m |   async ensurePersonaHasTools(): Promise<boolean> {
+ [2m125[0m |     try {
+ [2m126[0m |       console.log('=" * 80)
+     : [35;1m                  ^^^^^^^^^[0m
+ [2m127[0m |       console.log('🔧 VERIFYING PERSONA TOOLS CONFIGURATION');
+ [2m128[0m |       console.log('=' * 80);
+ [2m129[0m |       console.log(`📡 Fetching persona: ${this.personaId}`);
+     `----
+  [31mx[0m Expected ',', got 'console'
+     ,-[[36;1;4m/Users/amit/github/nasa-space-apps-challenge-2025/frontend/lib/tavus-corrected.ts[0m:127:1]
+ [2m124[0m |   async ensurePersonaHasTools(): Promise<boolean> {
+ [2m125[0m |     try {
+ [2m126[0m |       console.log('=" * 80)
+ [2m127[0m |       console.log('🔧 VERIFYING PERSONA TOOLS CONFIGURATION');
+     : [35;1m      ^^^^^^^[0m
+ [2m128[0m |       console.log('=' * 80);
+ [2m129[0m |       console.log(`📡 Fetching persona: ${this.personaId}`);
+ [2m130[0m |       console.log(`🔑 API Key: ${this.apiKey.substring(0, 10)}...`);
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/tavus-corrected.ts
+./app/page.tsx
+ ✓ Compiled in 122ms (822 modules)
+ GET / 200 in 69ms
+ ✓ Compiled in 356ms (822 modules)
+ GET / 200 in 129ms
+ ✓ Compiled in 427ms (822 modules)
+ GET / 200 in 107ms
+ ✓ Compiled in 112ms (822 modules)
+ GET / 200 in 47ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/1.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/server-development/1.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/0.pack.gz_' -> '/Users/amit/github/nasa-space-apps-challenge-2025/frontend/.next/cache/webpack/client-development/0.pack.gz'
+ ✓ Compiled in 267ms (822 modules)
+ GET / 200 in 79ms
+ ✓ Compiled in 90ms (822 modules)
+ GET / 200 in 31ms
+ GET / 200 in 98ms
+ ✓ Compiled in 220ms (822 modules)
+ GET / 200 in 136ms
+ ✓ Compiled in 166ms (822 modules)
